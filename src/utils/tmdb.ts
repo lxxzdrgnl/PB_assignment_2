@@ -77,3 +77,16 @@ export const getBackdropUrl = (backdropPath: string | null, size: string = 'w128
   if (!backdropPath) return '/placeholder-backdrop.png'
   return `${IMAGE_BASE_URL}/${size}${backdropPath}`
 }
+
+export const getMovieDetails = async (movieId: number): Promise<any> => {
+  try {
+    const url = createUrl(`/movie/${movieId}`, {
+      append_to_response: 'credits,videos,keywords'
+    })
+    const response = await axios.get(url)
+    return response.data
+  } catch (error) {
+    console.error('영화 상세 정보 요청 실패:', error)
+    throw error
+  }
+}
