@@ -2,8 +2,6 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation } from 'swiper/modules'
-import 'swiper/css'
-import 'swiper/css/navigation'
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import MovieCard from '@/components/MovieCard.vue'
@@ -212,9 +210,10 @@ onUnmounted(() => {
             </div>
             <Swiper
               :modules="modules"
-              :slides-per-view="2"
-              :space-between="10"
+              :slides-per-view="2.7"
+              :space-between="15"
               :navigation="true"
+              :loop="true"
               :breakpoints="{
                 480: { slidesPerView: 2, spaceBetween: 15 },
                 640: { slidesPerView: 3, spaceBetween: 15 },
@@ -236,9 +235,10 @@ onUnmounted(() => {
             </div>
             <Swiper
               :modules="modules"
-              :slides-per-view="2"
-              :space-between="10"
+              :slides-per-view="2.7"
+              :space-between="15"
               :navigation="true"
+              :loop="true"
               :breakpoints="{
                 480: { slidesPerView: 2, spaceBetween: 15 },
                 640: { slidesPerView: 3, spaceBetween: 15 },
@@ -260,9 +260,10 @@ onUnmounted(() => {
             </div>
             <Swiper
               :modules="modules"
-              :slides-per-view="2"
-              :space-between="10"
+              :slides-per-view="2.7"
+              :space-between="15"
               :navigation="true"
+              :loop="true"
               :breakpoints="{
                 480: { slidesPerView: 2, spaceBetween: 15 },
                 640: { slidesPerView: 3, spaceBetween: 15 },
@@ -284,9 +285,10 @@ onUnmounted(() => {
             </div>
             <Swiper
               :modules="modules"
-              :slides-per-view="2"
-              :space-between="10"
+              :slides-per-view="2.7"
+              :space-between="15"
               :navigation="true"
+              :loop="true"
               :breakpoints="{
                 480: { slidesPerView: 2, spaceBetween: 15 },
                 640: { slidesPerView: 3, spaceBetween: 15 },
@@ -308,9 +310,10 @@ onUnmounted(() => {
             </div>
             <Swiper
               :modules="modules"
-              :slides-per-view="2"
-              :space-between="10"
+              :slides-per-view="2.7"
+              :space-between="15"
               :navigation="true"
+              :loop="true"
               :breakpoints="{
                 480: { slidesPerView: 2, spaceBetween: 15 },
                 640: { slidesPerView: 3, spaceBetween: 15 },
@@ -332,9 +335,10 @@ onUnmounted(() => {
             </div>
             <Swiper
               :modules="modules"
-              :slides-per-view="2"
-              :space-between="10"
+              :slides-per-view="2.7"
+              :space-between="15"
               :navigation="true"
+              :loop="true"
               :breakpoints="{
                 480: { slidesPerView: 2, spaceBetween: 15 },
                 640: { slidesPerView: 3, spaceBetween: 15 },
@@ -356,9 +360,10 @@ onUnmounted(() => {
             </div>
             <Swiper
               :modules="modules"
-              :slides-per-view="2"
-              :space-between="10"
+              :slides-per-view="2.7"
+              :space-between="15"
               :navigation="true"
+              :loop="true"
               :breakpoints="{
                 480: { slidesPerView: 2, spaceBetween: 15 },
                 640: { slidesPerView: 3, spaceBetween: 15 },
@@ -380,9 +385,10 @@ onUnmounted(() => {
             </div>
             <Swiper
               :modules="modules"
-              :slides-per-view="2"
-              :space-between="10"
+              :slides-per-view="2.7"
+              :space-between="15"
               :navigation="true"
+              :loop="true"
               :breakpoints="{
                 480: { slidesPerView: 2, spaceBetween: 15 },
                 640: { slidesPerView: 3, spaceBetween: 15 },
@@ -404,9 +410,10 @@ onUnmounted(() => {
             </div>
             <Swiper
               :modules="modules"
-              :slides-per-view="2"
-              :space-between="10"
+              :slides-per-view="2.7"
+              :space-between="15"
               :navigation="true"
+              :loop="true"
               :breakpoints="{
                 480: { slidesPerView: 2, spaceBetween: 15 },
                 640: { slidesPerView: 3, spaceBetween: 15 },
@@ -428,9 +435,10 @@ onUnmounted(() => {
             </div>
             <Swiper
               :modules="modules"
-              :slides-per-view="2"
-              :space-between="10"
+              :slides-per-view="2.7"
+              :space-between="15"
               :navigation="true"
+              :loop="true"
               :breakpoints="{
                 480: { slidesPerView: 2, spaceBetween: 15 },
                 640: { slidesPerView: 3, spaceBetween: 15 },
@@ -452,9 +460,10 @@ onUnmounted(() => {
             </div>
             <Swiper
               :modules="modules"
-              :slides-per-view="2"
-              :space-between="10"
+              :slides-per-view="2.7"
+              :space-between="15"
               :navigation="true"
+              :loop="true"
               :breakpoints="{
                 480: { slidesPerView: 2, spaceBetween: 15 },
                 640: { slidesPerView: 3, spaceBetween: 15 },
@@ -476,9 +485,10 @@ onUnmounted(() => {
             </div>
             <Swiper
               :modules="modules"
-              :slides-per-view="2"
-              :space-between="10"
+              :slides-per-view="2.7"
+              :space-between="15"
               :navigation="true"
+              :loop="true"
               :breakpoints="{
                 480: { slidesPerView: 2, spaceBetween: 15 },
                 640: { slidesPerView: 3, spaceBetween: 15 },
@@ -500,9 +510,10 @@ onUnmounted(() => {
             </div>
             <Swiper
               :modules="modules"
-              :slides-per-view="2"
-              :space-between="10"
+              :slides-per-view="2.7"
+              :space-between="15"
               :navigation="true"
+              :loop="true"
               :breakpoints="{
                 480: { slidesPerView: 2, spaceBetween: 15 },
                 640: { slidesPerView: 3, spaceBetween: 15 },
@@ -524,9 +535,10 @@ onUnmounted(() => {
             </div>
             <Swiper
               :modules="modules"
-              :slides-per-view="2"
-              :space-between="10"
+              :slides-per-view="2.7"
+              :space-between="15"
               :navigation="true"
+              :loop="true"
               :breakpoints="{
                 480: { slidesPerView: 2, spaceBetween: 15 },
                 640: { slidesPerView: 3, spaceBetween: 15 },
@@ -562,7 +574,7 @@ onUnmounted(() => {
   height: 90vh;
   min-height: 650px;
   max-height: 850px;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   overflow: hidden;
 }
 
@@ -667,51 +679,21 @@ onUnmounted(() => {
 
 /* Section Styles */
 .section {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.25rem;
-}
-
-.section-title {
-  font-size: 1.8rem;
-  font-weight: 700;
+  margin-bottom: 0.75rem; /* Restored reasonable space below title */
 }
 
 /* Movies Slider */
 .movies-slider {
-  padding: 1rem 0 1.5rem;
+  padding: 0.5rem 0 1rem; /* Restored reasonable space above slider */
 }
 
 /* Specific fix for title-slider spacing */
 .section-header h2.section-title {
   margin-bottom: 0; /* Reset default h2 margin */
-}
-
-/* Swiper Custom Styles */
-:deep(.swiper-button-next),
-:deep(.swiper-button-prev) {
-  color: var(--primary-color);
-  background: rgba(0, 0, 0, 0.5);
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-}
-
-:deep(.swiper-button-next:hover),
-:deep(.swiper-button-prev:hover) {
-  background: var(--primary-color);
-  color: white;
-}
-
-:deep(.swiper-button-next::after),
-:deep(.swiper-button-prev::after) {
-  font-size: 1.2rem;
 }
 
 /* Responsive Design */
@@ -787,17 +769,6 @@ onUnmounted(() => {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
-  }
-
-  :deep(.swiper-button-next),
-  :deep(.swiper-button-prev) {
-    width: 35px;
-    height: 35px;
-  }
-
-  :deep(.swiper-button-next::after),
-  :deep(.swiper-button-prev::after) {
-    font-size: 1rem;
   }
 }
 </style>

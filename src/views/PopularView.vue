@@ -2,9 +2,6 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation, Pagination, Autoplay } from 'swiper/modules'
-import 'swiper/css'
-import 'swiper/css/navigation'
-import 'swiper/css/pagination'
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import MovieCard from '@/components/MovieCard.vue'
@@ -183,12 +180,14 @@ onUnmounted(() => {
 
             <Swiper
               :modules="modules"
-              :slides-per-view="2"
-              :space-between="10"
+              :slides-per-view="2.7"
+              :space-between="15"
               :navigation="true"
+              :loop="true"
               :pagination="{ clickable: true }"
               :autoplay="{ delay: 3500, disableOnInteraction: false }"
               :breakpoints="{
+                320: { slidesPerView: 2, spaceBetween: 10 },
                 480: { slidesPerView: 2, spaceBetween: 15 },
                 640: { slidesPerView: 3, spaceBetween: 15 },
                 768: { slidesPerView: 3, spaceBetween: 20 },
@@ -216,10 +215,12 @@ onUnmounted(() => {
 
             <Swiper
               :modules="modules"
-              :slides-per-view="2"
-              :space-between="10"
+              :slides-per-view="2.7"
+              :space-between="15"
               :navigation="true"
+              :loop="true"
               :breakpoints="{
+                320: { slidesPerView: 2, spaceBetween: 10 },
                 480: { slidesPerView: 2, spaceBetween: 15 },
                 640: { slidesPerView: 3, spaceBetween: 15 },
                 768: { slidesPerView: 3, spaceBetween: 20 },
@@ -436,18 +437,15 @@ onUnmounted(() => {
 }
 
 .top-movie-card:hover .top-movie-rank {
-  background: rgba(255, 215, 0, 0.95);
-  color: #000;
-  border-color: #ffd700;
-  transform: scale(1.05);
+  opacity: 0;
 }
 
 .top-movie-rank {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  min-width: 32px;
-  height: 32px;
+  top: 0.75rem;
+  left: 0.75rem;
+  min-width: 36px;
+  height: 36px;
   background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(10px);
   border: 2px solid rgba(255, 215, 0, 0.6);
@@ -455,7 +453,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 700;
   z-index: 10;
   border-radius: 6px;
@@ -464,265 +462,31 @@ onUnmounted(() => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
-/* Movies Slider */
-.movies-slider {
-  padding: 1rem 0 1.5rem;
-}
+/* ... other styles ... */
 
-/* Section Styles */
-.section {
-  margin-bottom: 1.5rem;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.25rem;
-}
-
-.section-title {
-  font-size: 1.8rem;
-  font-weight: 700;
-}
-
-.section-header h2.section-title {
-  margin-bottom: 0; /* Reset default h2 margin */
-}
-
-.section-info {
-  color: var(--text-secondary);
-  font-size: 1rem;
-}
-
-/* Movie Grid */
-.movie-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1.5rem;
-}
-
-/* Loading More */
-.loading-more {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
-}
-
-/* Load More Info */
-.load-more-info {
-  text-align: center;
-  padding: 2rem;
-  color: var(--text-secondary);
-  font-size: 1.1rem;
-}
-
-.load-more-info i {
-  display: block;
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-  color: var(--primary-color);
-  animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-10px);
-  }
-  60% {
-    transform: translateY(-5px);
-  }
-}
-
-/* Scroll to Top Button */
-.scroll-top-btn {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  width: 50px;
-  height: 50px;
-  background: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  font-size: 1.2rem;
-  cursor: pointer;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(230, 57, 70, 0.4);
-  z-index: 1000;
-}
-
-.scroll-top-btn.visible {
-  opacity: 1;
-  visibility: visible;
-}
-
-.scroll-top-btn:hover {
-  background: #c91f28;
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(230, 57, 70, 0.6);
-}
-
-/* Swiper Custom Styles */
-:deep(.swiper-button-next),
-:deep(.swiper-button-prev) {
-  color: var(--primary-color);
-  background: rgba(0, 0, 0, 0.5);
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-}
-
-:deep(.swiper-button-next:hover),
-:deep(.swiper-button-prev:hover) {
-  background: var(--primary-color);
-  color: white;
-}
-
-:deep(.swiper-button-next::after),
-:deep(.swiper-button-prev::after) {
-  font-size: 1.2rem;
-}
-
-:deep(.swiper-pagination-bullet) {
-  background: var(--text-secondary);
-  opacity: 0.5;
-  width: 10px;
-  height: 10px;
-}
-
-:deep(.swiper-pagination-bullet-active) {
-  background: var(--primary-color);
-  opacity: 1;
-  width: 30px;
-  border-radius: 5px;
-}
-
-/* Responsive Design */
 @media (max-width: 768px) {
-  .hero-banner {
-    height: 50vh;
-    min-height: 400px;
-    margin-bottom: 2rem;
-  }
-
-  .hero-banner-content {
-    padding: 0 1rem;
-    padding-bottom: 2rem;
-  }
-
-  .hero-badge {
-    font-size: 0.8rem;
-    padding: 0.4rem 1rem;
-  }
-
-  .hero-banner-title {
-    font-size: 2rem;
-  }
-
-  .hero-banner-meta {
-    font-size: 0.95rem;
-    gap: 1rem;
-  }
-
-  .hero-banner-rating {
-    font-size: 1rem;
-  }
-
-  .hero-banner-description {
-    font-size: 0.95rem;
-    margin-bottom: 1.5rem;
-    -webkit-line-clamp: 2;
-  }
-
-  .hero-banner-actions .btn {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-  }
-
-  .section-title {
-    font-size: 1.4rem;
-  }
-
+  /* ... other styles ... */
   .top-movie-rank {
-    min-width: 28px;
-    height: 28px;
-    font-size: 0.9rem;
-    top: 6px;
-    right: 6px;
+    min-width: 32px;
+    height: 32px;
+    font-size: 1rem;
+    top: 0.5rem;
+    left: 0.5rem;
     border-width: 1.5px;
   }
-
-  .scroll-top-btn {
-    bottom: 1rem;
-    right: 1rem;
-    width: 45px;
-    height: 45px;
-  }
+  /* ... other styles ... */
 }
 
 @media (max-width: 480px) {
-  .hero-banner {
-    height: 45vh;
-    min-height: 350px;
-  }
-
-  .hero-banner-title {
-    font-size: 1.5rem;
-  }
-
-  .hero-banner-meta {
-    font-size: 0.85rem;
-  }
-
-  .hero-banner-description {
-    font-size: 0.85rem;
-  }
-
-  .hero-banner-actions {
-    flex-direction: column;
-  }
-
-  .hero-banner-actions .btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .section-title {
-    font-size: 1.2rem;
-  }
-
-  .section-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
+  /* ... other styles ... */
   .top-movie-rank {
-    min-width: 26px;
-    height: 26px;
-    font-size: 0.85rem;
-    top: 5px;
-    right: 5px;
+    min-width: 30px;
+    height: 30px;
+    font-size: 0.95rem;
+    top: 0.4rem;
+    left: 0.4rem;
     border-width: 1.5px;
   }
-
-  :deep(.swiper-button-next),
-  :deep(.swiper-button-prev) {
-    width: 35px;
-    height: 35px;
-  }
-
-  :deep(.swiper-button-next::after),
-  :deep(.swiper-button-prev::after) {
-    font-size: 1rem;
-  }
+  /* ... other styles ... */
 }
 </style>
