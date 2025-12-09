@@ -319,10 +319,12 @@ a:hover {
 }
 
 @keyframes float {
+
   0%,
   100% {
     transform: translate(-50%, -50%) translateY(0);
   }
+
   50% {
     transform: translate(-50%, -50%) translateY(30px);
   }
@@ -434,6 +436,20 @@ a:hover {
 .section-title {
   font-size: 1.75rem;
   font-weight: 700;
+  position: relative;
+  padding-left: 1rem;
+}
+
+.section-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 70%;
+  background: linear-gradient(180deg, var(--primary-color) 0%, #ff6b35 100%);
+  border-radius: 2px;
 }
 
 /* ===== Movie Card Styles ===== */
@@ -855,6 +871,7 @@ a:hover {
     transform: translateX(100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -929,12 +946,10 @@ a:hover {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    0deg,
-    var(--bg-dark) 0%,
-    transparent 50%,
-    rgba(0, 0, 0, 0.5) 100%
-  );
+  background: linear-gradient(0deg,
+      var(--bg-dark) 0%,
+      transparent 50%,
+      rgba(0, 0, 0, 0.5) 100%);
 }
 
 .hero-banner-content {
@@ -1124,12 +1139,15 @@ a:hover {
 .mt-1 {
   margin-top: 0.5rem;
 }
+
 .mt-2 {
   margin-top: 1rem;
 }
+
 .mt-3 {
   margin-top: 1.5rem;
 }
+
 .mt-4 {
   margin-top: 2rem;
 }
@@ -1137,12 +1155,15 @@ a:hover {
 .mb-1 {
   margin-bottom: 0.5rem;
 }
+
 .mb-2 {
   margin-bottom: 1rem;
 }
+
 .mb-3 {
   margin-bottom: 1.5rem;
 }
+
 .mb-4 {
   margin-bottom: 2rem;
 }
@@ -1166,12 +1187,15 @@ a:hover {
 .gap-1 {
   gap: 0.5rem;
 }
+
 .gap-2 {
   gap: 1rem;
 }
+
 .gap-3 {
   gap: 1.5rem;
 }
+
 .gap-4 {
   gap: 2rem;
 }

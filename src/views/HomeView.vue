@@ -1,22 +1,41 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import { Navigation } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/navigation'
 import AppHeader from '@/components/AppHeader.vue'
+import AppFooter from '@/components/AppFooter.vue'
 import MovieCard from '@/components/MovieCard.vue'
 import MovieDetailModal from '@/components/MovieDetailModal.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import type { Movie } from '@/types/movie'
 import {
-  getPopularMovies,
+  getTrendingMovies,
+  getPopularTvShows,
   getNowPlayingMovies,
   getTopRatedMovies,
   getUpcomingMovies,
+  discoverMovies,
+  discoverTvShows
 } from '@/utils/tmdb'
 import { getBackdropUrl } from '@/utils/tmdb'
 
-const popularMovies = ref<Movie[]>([])
+const dailyTrendingMovies = ref<Movie[]>([])
+const popularTvShows = ref<Movie[]>([])
 const nowPlayingMovies = ref<Movie[]>([])
 const topRatedMovies = ref<Movie[]>([])
 const upcomingMovies = ref<Movie[]>([])
+const actionMovies = ref<Movie[]>([])
+const comedyMovies = ref<Movie[]>([])
+const romanceMovies = ref<Movie[]>([])
+const sciFiMovies = ref<Movie[]>([])
+const horrorMovies = ref<Movie[]>([])
+const animationMovies = ref<Movie[]>([])
+const documentaryMovies = ref<Movie[]>([])
+const koreanMovies = ref<Movie[]>([])
+const koreanTvShows = ref<Movie[]>([])
+
 const loading = ref(true)
 const error = ref<string | null>(null)
 const selectedMovie = ref<Movie | null>(null)
@@ -24,11 +43,13 @@ const showModal = ref(false)
 const heroMovie = ref<Movie | null>(null)
 let heroInterval: number | null = null
 
+const modules = [Navigation]
+
 const allMovies = computed(() => [
-  ...popularMovies.value,
+  ...dailyTrendingMovies.value,
   ...nowPlayingMovies.value,
-  ...topRatedMovies.value,
   ...upcomingMovies.value,
+  ...koreanMovies.value
 ])
 
 const selectRandomHeroMovie = () => {
@@ -52,22 +73,62 @@ const stopHeroRotation = () => {
   }
 }
 
+const mapTvShowToMovie = (tvShow: any): Movie => ({
+  ...tvShow,
+  title: tvShow.name,
+  release_date: tvShow.first_air_date
+})
+
 const loadMovies = async () => {
   try {
     loading.value = true
-    const [popular, nowPlaying, topRated, upcoming] = await Promise.all([
-      getPopularMovies(),
+    const [
+      dailyTrending,
+      popularTv,
+      nowPlaying,
+      topRated,
+      upcoming,
+      action,
+      comedy,
+      romance,
+      sciFi,
+      horror,
+      animation,
+      documentary,
+      korean,
+      koreanTv
+    ] = await Promise.all([
+      getTrendingMovies('day'),
+      getPopularTvShows(),
       getNowPlayingMovies(),
       getTopRatedMovies(),
       getUpcomingMovies(),
+      discoverMovies({ with_genres: '28' }),
+      discoverMovies({ with_genres: '35' }),
+      discoverMovies({ with_genres: '10749' }),
+      discoverMovies({ with_genres: '878' }),
+      discoverMovies({ with_genres: '27' }),
+      discoverMovies({ with_genres: '16' }),
+      discoverMovies({ with_genres: '99' }),
+      discoverMovies({ with_origin_country: 'KR', sort_by: 'popularity.desc' }),
+      discoverTvShows({ with_origin_country: 'KR', sort_by: 'popularity.desc' })
     ])
 
-    popularMovies.value = popular.results.slice(0, 10)
-    nowPlayingMovies.value = nowPlaying.results.slice(0, 10)
-    topRatedMovies.value = topRated.results.slice(0, 10)
-    upcomingMovies.value = upcoming.results.slice(0, 10)
+    dailyTrendingMovies.value = dailyTrending.results
+    popularTvShows.value = popularTv.results.map(mapTvShowToMovie)
+    nowPlayingMovies.value = nowPlaying.results
+    topRatedMovies.value = topRated.results
+    upcomingMovies.value = upcoming.results
+    actionMovies.value = action.results
+    comedyMovies.value = comedy.results
+    romanceMovies.value = romance.results
+    sciFiMovies.value = sciFi.results
+    horrorMovies.value = horror.results
+    animationMovies.value = animation.results
+    documentaryMovies.value = documentary.results
+    koreanMovies.value = korean.results
+    koreanTvShows.value = koreanTv.results.map(mapTvShowToMovie)
 
-    // 영화 로드 후 히어로 배너 시작
     startHeroRotation()
   } catch (err) {
     error.value = 'API 키가 유효하지 않습니다. 로그아웃 후 올바른 TMDB API 키로 다시 로그인해주세요.'
@@ -102,39 +163,39 @@ onUnmounted(() => {
   <div>
     <AppHeader />
 
-    <main class="page-container">
-      <!-- Hero Banner -->
-      <Transition name="hero-fade" mode="out-in">
-        <div v-if="heroMovie && !loading" :key="heroMovie.id" class="hero-banner">
-          <img
-            :src="getBackdropUrl(heroMovie.backdrop_path)"
-            :alt="heroMovie.title"
-            class="hero-banner-bg"
-          />
-          <div class="hero-banner-overlay"></div>
-          <div class="hero-banner-content">
-            <h1 class="hero-banner-title">{{ heroMovie.title }}</h1>
-            <div class="hero-banner-meta">
-              <span class="hero-banner-rating">
-                <i class="fas fa-star"></i>
-                {{ heroMovie.vote_average.toFixed(1) }}
-              </span>
-              <span class="hero-banner-year">
-                {{ heroMovie.release_date?.split('-')[0] || 'N/A' }}
-              </span>
-            </div>
-            <p class="hero-banner-description">
-              {{ heroMovie.overview || '지금 가장 인기 있는 영화를 만나보세요!' }}
-            </p>
-            <div class="hero-banner-actions">
-              <button class="btn btn-primary" @click="handleMovieClick(heroMovie)">
-                <i class="fas fa-play"></i> 상세보기
-              </button>
-            </div>
+    <!-- Hero Banner -->
+    <Transition name="hero-fade" mode="out-in">
+      <div v-if="heroMovie && !loading" :key="heroMovie.id" class="hero-banner">
+        <img
+          :src="getBackdropUrl(heroMovie.backdrop_path)"
+          :alt="heroMovie.title"
+          class="hero-banner-bg"
+        />
+        <div class="hero-banner-overlay"></div>
+        <div class="hero-banner-content">
+          <h1 class="hero-banner-title">{{ heroMovie.title }}</h1>
+          <div class="hero-banner-meta">
+            <span class="hero-banner-rating">
+              <i class="fas fa-star"></i>
+              {{ heroMovie.vote_average.toFixed(1) }}
+            </span>
+            <span class="hero-banner-year">
+              {{ heroMovie.release_date?.split('-')[0] || 'N/A' }}
+            </span>
+          </div>
+          <p class="hero-banner-description">
+            {{ heroMovie.overview || '지금 가장 인기 있는 영화를 만나보세요!' }}
+          </p>
+          <div class="hero-banner-actions">
+            <button class="btn btn-primary" @click="handleMovieClick(heroMovie)">
+              <i class="fas fa-play"></i> 상세보기
+            </button>
           </div>
         </div>
-      </Transition>
+      </div>
+    </Transition>
 
+    <main class="page-container">
       <div class="container">
         <LoadingSpinner v-if="loading" text="영화 목록을 불러오는 중..." />
 
@@ -147,61 +208,360 @@ onUnmounted(() => {
         <div v-else>
           <section class="section">
             <div class="section-header">
-              <h2 class="section-title">
-                <i class="fas fa-fire" style="color: var(--primary-color)"></i> 인기 영화
-              </h2>
+              <h2 class="section-title">일간 트렌드 영화</h2>
             </div>
-            <div class="movie-grid">
-              <MovieCard v-for="movie in popularMovies" :key="movie.id" :movie="movie" @click="handleMovieClick" />
-            </div>
+            <Swiper
+              :modules="modules"
+              :slides-per-view="2"
+              :space-between="10"
+              :navigation="true"
+              :breakpoints="{
+                480: { slidesPerView: 2, spaceBetween: 15 },
+                640: { slidesPerView: 3, spaceBetween: 15 },
+                768: { slidesPerView: 3, spaceBetween: 20 },
+                1024: { slidesPerView: 4, spaceBetween: 20 },
+                1280: { slidesPerView: 5, spaceBetween: 20 }
+              }"
+              class="movies-slider"
+            >
+              <SwiperSlide v-for="movie in dailyTrendingMovies" :key="movie.id">
+                <MovieCard :movie="movie" @click="handleMovieClick" />
+              </SwiperSlide>
+            </Swiper>
           </section>
 
           <section class="section">
             <div class="section-header">
-              <h2 class="section-title">
-                <i class="fas fa-play-circle" style="color: var(--primary-color)"></i> 현재 상영작
-              </h2>
+              <h2 class="section-title">인기 TV 프로그램</h2>
             </div>
-            <div class="movie-grid">
-              <MovieCard v-for="movie in nowPlayingMovies" :key="movie.id" :movie="movie" @click="handleMovieClick" />
-            </div>
+            <Swiper
+              :modules="modules"
+              :slides-per-view="2"
+              :space-between="10"
+              :navigation="true"
+              :breakpoints="{
+                480: { slidesPerView: 2, spaceBetween: 15 },
+                640: { slidesPerView: 3, spaceBetween: 15 },
+                768: { slidesPerView: 3, spaceBetween: 20 },
+                1024: { slidesPerView: 4, spaceBetween: 20 },
+                1280: { slidesPerView: 5, spaceBetween: 20 }
+              }"
+              class="movies-slider"
+            >
+              <SwiperSlide v-for="movie in popularTvShows" :key="movie.id">
+                <MovieCard :movie="movie" @click="handleMovieClick" />
+              </SwiperSlide>
+            </Swiper>
           </section>
 
           <section class="section">
             <div class="section-header">
-              <h2 class="section-title">
-                <i class="fas fa-star" style="color: #ffd700"></i> 높은 평점
-              </h2>
+              <h2 class="section-title">현재 상영작</h2>
             </div>
-            <div class="movie-grid">
-              <MovieCard v-for="movie in topRatedMovies" :key="movie.id" :movie="movie" @click="handleMovieClick" />
-            </div>
+            <Swiper
+              :modules="modules"
+              :slides-per-view="2"
+              :space-between="10"
+              :navigation="true"
+              :breakpoints="{
+                480: { slidesPerView: 2, spaceBetween: 15 },
+                640: { slidesPerView: 3, spaceBetween: 15 },
+                768: { slidesPerView: 3, spaceBetween: 20 },
+                1024: { slidesPerView: 4, spaceBetween: 20 },
+                1280: { slidesPerView: 5, spaceBetween: 20 }
+              }"
+              class="movies-slider"
+            >
+              <SwiperSlide v-for="movie in nowPlayingMovies" :key="movie.id">
+                <MovieCard :movie="movie" @click="handleMovieClick" />
+              </SwiperSlide>
+            </Swiper>
           </section>
 
           <section class="section">
             <div class="section-header">
-              <h2 class="section-title">
-                <i class="fas fa-calendar-alt" style="color: var(--primary-color)"></i> 개봉 예정
-              </h2>
+              <h2 class="section-title">개봉 예정</h2>
             </div>
-            <div class="movie-grid">
-              <MovieCard v-for="movie in upcomingMovies" :key="movie.id" :movie="movie" @click="handleMovieClick" />
+            <Swiper
+              :modules="modules"
+              :slides-per-view="2"
+              :space-between="10"
+              :navigation="true"
+              :breakpoints="{
+                480: { slidesPerView: 2, spaceBetween: 15 },
+                640: { slidesPerView: 3, spaceBetween: 15 },
+                768: { slidesPerView: 3, spaceBetween: 20 },
+                1024: { slidesPerView: 4, spaceBetween: 20 },
+                1280: { slidesPerView: 5, spaceBetween: 20 }
+              }"
+              class="movies-slider"
+            >
+              <SwiperSlide v-for="movie in upcomingMovies" :key="movie.id">
+                <MovieCard :movie="movie" @click="handleMovieClick" />
+              </SwiperSlide>
+            </Swiper>
+          </section>
+
+          <section class="section">
+            <div class="section-header">
+              <h2 class="section-title">높은 평점</h2>
             </div>
+            <Swiper
+              :modules="modules"
+              :slides-per-view="2"
+              :space-between="10"
+              :navigation="true"
+              :breakpoints="{
+                480: { slidesPerView: 2, spaceBetween: 15 },
+                640: { slidesPerView: 3, spaceBetween: 15 },
+                768: { slidesPerView: 3, spaceBetween: 20 },
+                1024: { slidesPerView: 4, spaceBetween: 20 },
+                1280: { slidesPerView: 5, spaceBetween: 20 }
+              }"
+              class="movies-slider"
+            >
+              <SwiperSlide v-for="movie in topRatedMovies" :key="movie.id">
+                <MovieCard :movie="movie" @click="handleMovieClick" />
+              </SwiperSlide>
+            </Swiper>
+          </section>
+
+          <section class="section">
+            <div class="section-header">
+              <h2 class="section-title">한국 인기 영화</h2>
+            </div>
+            <Swiper
+              :modules="modules"
+              :slides-per-view="2"
+              :space-between="10"
+              :navigation="true"
+              :breakpoints="{
+                480: { slidesPerView: 2, spaceBetween: 15 },
+                640: { slidesPerView: 3, spaceBetween: 15 },
+                768: { slidesPerView: 3, spaceBetween: 20 },
+                1024: { slidesPerView: 4, spaceBetween: 20 },
+                1280: { slidesPerView: 5, spaceBetween: 20 }
+              }"
+              class="movies-slider"
+            >
+              <SwiperSlide v-for="movie in koreanMovies" :key="movie.id">
+                <MovieCard :movie="movie" @click="handleMovieClick" />
+              </SwiperSlide>
+            </Swiper>
+          </section>
+
+          <section class="section">
+            <div class="section-header">
+              <h2 class="section-title">한국 인기 TV 프로그램</h2>
+            </div>
+            <Swiper
+              :modules="modules"
+              :slides-per-view="2"
+              :space-between="10"
+              :navigation="true"
+              :breakpoints="{
+                480: { slidesPerView: 2, spaceBetween: 15 },
+                640: { slidesPerView: 3, spaceBetween: 15 },
+                768: { slidesPerView: 3, spaceBetween: 20 },
+                1024: { slidesPerView: 4, spaceBetween: 20 },
+                1280: { slidesPerView: 5, spaceBetween: 20 }
+              }"
+              class="movies-slider"
+            >
+              <SwiperSlide v-for="movie in koreanTvShows" :key="movie.id">
+                <MovieCard :movie="movie" @click="handleMovieClick" />
+              </SwiperSlide>
+            </Swiper>
+          </section>
+
+          <section class="section">
+            <div class="section-header">
+              <h2 class="section-title">추천 액션 영화</h2>
+            </div>
+            <Swiper
+              :modules="modules"
+              :slides-per-view="2"
+              :space-between="10"
+              :navigation="true"
+              :breakpoints="{
+                480: { slidesPerView: 2, spaceBetween: 15 },
+                640: { slidesPerView: 3, spaceBetween: 15 },
+                768: { slidesPerView: 3, spaceBetween: 20 },
+                1024: { slidesPerView: 4, spaceBetween: 20 },
+                1280: { slidesPerView: 5, spaceBetween: 20 }
+              }"
+              class="movies-slider"
+            >
+              <SwiperSlide v-for="movie in actionMovies" :key="movie.id">
+                <MovieCard :movie="movie" @click="handleMovieClick" />
+              </SwiperSlide>
+            </Swiper>
+          </section>
+
+          <section class="section">
+            <div class="section-header">
+              <h2 class="section-title">추천 코미디 영화</h2>
+            </div>
+            <Swiper
+              :modules="modules"
+              :slides-per-view="2"
+              :space-between="10"
+              :navigation="true"
+              :breakpoints="{
+                480: { slidesPerView: 2, spaceBetween: 15 },
+                640: { slidesPerView: 3, spaceBetween: 15 },
+                768: { slidesPerView: 3, spaceBetween: 20 },
+                1024: { slidesPerView: 4, spaceBetween: 20 },
+                1280: { slidesPerView: 5, spaceBetween: 20 }
+              }"
+              class="movies-slider"
+            >
+              <SwiperSlide v-for="movie in comedyMovies" :key="movie.id">
+                <MovieCard :movie="movie" @click="handleMovieClick" />
+              </SwiperSlide>
+            </Swiper>
+          </section>
+
+          <section class="section">
+            <div class="section-header">
+              <h2 class="section-title">추천 로맨스 영화</h2>
+            </div>
+            <Swiper
+              :modules="modules"
+              :slides-per-view="2"
+              :space-between="10"
+              :navigation="true"
+              :breakpoints="{
+                480: { slidesPerView: 2, spaceBetween: 15 },
+                640: { slidesPerView: 3, spaceBetween: 15 },
+                768: { slidesPerView: 3, spaceBetween: 20 },
+                1024: { slidesPerView: 4, spaceBetween: 20 },
+                1280: { slidesPerView: 5, spaceBetween: 20 }
+              }"
+              class="movies-slider"
+            >
+              <SwiperSlide v-for="movie in romanceMovies" :key="movie.id">
+                <MovieCard :movie="movie" @click="handleMovieClick" />
+              </SwiperSlide>
+            </Swiper>
+          </section>
+
+          <section class="section">
+            <div class="section-header">
+              <h2 class="section-title">추천 SF 영화</h2>
+            </div>
+            <Swiper
+              :modules="modules"
+              :slides-per-view="2"
+              :space-between="10"
+              :navigation="true"
+              :breakpoints="{
+                480: { slidesPerView: 2, spaceBetween: 15 },
+                640: { slidesPerView: 3, spaceBetween: 15 },
+                768: { slidesPerView: 3, spaceBetween: 20 },
+                1024: { slidesPerView: 4, spaceBetween: 20 },
+                1280: { slidesPerView: 5, spaceBetween: 20 }
+              }"
+              class="movies-slider"
+            >
+              <SwiperSlide v-for="movie in sciFiMovies" :key="movie.id">
+                <MovieCard :movie="movie" @click="handleMovieClick" />
+              </SwiperSlide>
+            </Swiper>
+          </section>
+          
+          <section class="section">
+            <div class="section-header">
+              <h2 class="section-title">추천 공포 영화</h2>
+            </div>
+            <Swiper
+              :modules="modules"
+              :slides-per-view="2"
+              :space-between="10"
+              :navigation="true"
+              :breakpoints="{
+                480: { slidesPerView: 2, spaceBetween: 15 },
+                640: { slidesPerView: 3, spaceBetween: 15 },
+                768: { slidesPerView: 3, spaceBetween: 20 },
+                1024: { slidesPerView: 4, spaceBetween: 20 },
+                1280: { slidesPerView: 5, spaceBetween: 20 }
+              }"
+              class="movies-slider"
+            >
+              <SwiperSlide v-for="movie in horrorMovies" :key="movie.id">
+                <MovieCard :movie="movie" @click="handleMovieClick" />
+              </SwiperSlide>
+            </Swiper>
+          </section>
+
+          <section class="section">
+            <div class="section-header">
+              <h2 class="section-title">추천 애니메이션</h2>
+            </div>
+            <Swiper
+              :modules="modules"
+              :slides-per-view="2"
+              :space-between="10"
+              :navigation="true"
+              :breakpoints="{
+                480: { slidesPerView: 2, spaceBetween: 15 },
+                640: { slidesPerView: 3, spaceBetween: 15 },
+                768: { slidesPerView: 3, spaceBetween: 20 },
+                1024: { slidesPerView: 4, spaceBetween: 20 },
+                1280: { slidesPerView: 5, spaceBetween: 20 }
+              }"
+              class="movies-slider"
+            >
+              <SwiperSlide v-for="movie in animationMovies" :key="movie.id">
+                <MovieCard :movie="movie" @click="handleMovieClick" />
+              </SwiperSlide>
+            </Swiper>
+          </section>
+
+          <section class="section">
+            <div class="section-header">
+              <h2 class="section-title">추천 다큐멘터리</h2>
+            </div>
+            <Swiper
+              :modules="modules"
+              :slides-per-view="2"
+              :space-between="10"
+              :navigation="true"
+              :breakpoints="{
+                480: { slidesPerView: 2, spaceBetween: 15 },
+                640: { slidesPerView: 3, spaceBetween: 15 },
+                768: { slidesPerView: 3, spaceBetween: 20 },
+                1024: { slidesPerView: 4, spaceBetween: 20 },
+                1280: { slidesPerView: 5, spaceBetween: 20 }
+              }"
+              class="movies-slider"
+            >
+              <SwiperSlide v-for="movie in documentaryMovies" :key="movie.id">
+                <MovieCard :movie="movie" @click="handleMovieClick" />
+              </SwiperSlide>
+            </Swiper>
           </section>
         </div>
       </div>
     </main>
+
+    <AppFooter />
 
     <MovieDetailModal :movie="selectedMovie" :show="showModal" @close="handleCloseModal" />
   </div>
 </template>
 
 <style scoped>
+/* Override page-container padding for hero */
+.page-container {
+  padding-top: 0;
+}
+
 .hero-banner {
   position: relative;
-  height: 70vh;
-  min-height: 550px;
-  max-height: 700px;
+  height: 90vh;
+  min-height: 650px;
+  max-height: 850px;
   margin-bottom: 2rem;
   overflow: hidden;
 }
@@ -223,10 +583,11 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   background: linear-gradient(
-    0deg,
-    var(--bg-dark) 0%,
-    transparent 50%,
-    rgba(0, 0, 0, 0.7) 100%
+    180deg,
+    rgba(0, 0, 0, 0.8) 0%,
+    transparent 30%,
+    transparent 60%,
+    var(--bg-dark) 100%
   );
 }
 
@@ -304,6 +665,55 @@ onUnmounted(() => {
   opacity: 0;
 }
 
+/* Section Styles */
+.section {
+  margin-bottom: 1.5rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+/* Movies Slider */
+.movies-slider {
+  padding: 1rem 0 1.5rem;
+}
+
+/* Specific fix for title-slider spacing */
+.section-header h2.section-title {
+  margin-bottom: 0; /* Reset default h2 margin */
+}
+
+/* Swiper Custom Styles */
+:deep(.swiper-button-next),
+:deep(.swiper-button-prev) {
+  color: var(--primary-color);
+  background: rgba(0, 0, 0, 0.5);
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+:deep(.swiper-button-next:hover),
+:deep(.swiper-button-prev:hover) {
+  background: var(--primary-color);
+  color: white;
+}
+
+:deep(.swiper-button-next::after),
+:deep(.swiper-button-prev::after) {
+  font-size: 1.2rem;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .hero-banner {
@@ -336,6 +746,10 @@ onUnmounted(() => {
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
   }
+
+  .section-title {
+    font-size: 1.4rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -363,6 +777,27 @@ onUnmounted(() => {
   .hero-banner-actions .btn {
     width: 100%;
     justify-content: center;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  :deep(.swiper-button-next),
+  :deep(.swiper-button-prev) {
+    width: 35px;
+    height: 35px;
+  }
+
+  :deep(.swiper-button-next::after),
+  :deep(.swiper-button-prev::after) {
+    font-size: 1rem;
   }
 }
 </style>

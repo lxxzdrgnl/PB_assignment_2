@@ -17,18 +17,25 @@ const createUrl = (endpoint: string, params: Record<string, string | number> = {
   return url.toString()
 }
 
-export const fetchMovies = async (
+const fetchData = async <T>(
+  endpoint: string,
+  params: Record<string, string | number> = {}
+): Promise<T> => {
+  try {
+    const url = createUrl(endpoint, params)
+    const response = await axios.get<T>(url)
+    return response.data
+  } catch (error) {
+    console.error(`API 요청 실패: ${endpoint}`, error)
+    throw error
+  }
+}
+
+export const fetchMovies = (
   endpoint: string,
   params: Record<string, string | number> = {}
 ): Promise<MovieResponse> => {
-  try {
-    const url = createUrl(endpoint, params)
-    const response = await axios.get<MovieResponse>(url)
-    return response.data
-  } catch (error) {
-    console.error('API 요청 실패:', error)
-    throw error
-  }
+  return fetchData<MovieResponse>(endpoint, params)
 }
 
 export const getPopularMovies = (page: number = 1): Promise<MovieResponse> => {
@@ -47,6 +54,25 @@ export const getUpcomingMovies = (page: number = 1): Promise<MovieResponse> => {
   return fetchMovies('/movie/upcoming', { page })
 }
 
+export const getTrendingMovies = (
+  timeWindow: 'day' | 'week' = 'day',
+  page: number = 1
+): Promise<MovieResponse> => {
+  return fetchMovies(`/trending/movie/${timeWindow}`, { page })
+}
+
+export const getPopularTvShows = (page: number = 1): Promise<any> => {
+  return fetchData<any>('/tv/popular', { page })
+}
+
+export const getPopularKoreanMovies = (page: number = 1): Promise<MovieResponse> => {
+  return fetchMovies('/movie/popular', { page, region: 'KR' })
+}
+
+export const getPopularKoreanTvShows = (page: number = 1): Promise<any> => {
+  return fetchData<any>('/tv/popular', { page, region: 'KR' })
+}
+
 export const searchMovies = (query: string, page: number = 1): Promise<MovieResponse> => {
   return fetchMovies('/search/movie', { query, page })
 }
@@ -55,6 +81,12 @@ export const discoverMovies = (
   params: Record<string, string | number> = {}
 ): Promise<MovieResponse> => {
   return fetchMovies('/discover/movie', params)
+}
+
+export const discoverTvShows = (
+  params: Record<string, string | number> = {}
+): Promise<any> => {
+  return fetchData<any>('/discover/tv', params)
 }
 
 export const getGenres = async (): Promise<Genre[]> => {
@@ -87,6 +119,39 @@ export const getMovieDetails = async (movieId: number): Promise<any> => {
     return response.data
   } catch (error) {
     console.error('영화 상세 정보 요청 실패:', error)
+    throw error
+  }
+}
+
+export const getMovieRecommendations = (
+  movieId: number,
+  page: number = 1
+): Promise<MovieResponse> => {
+  return fetchMovies(`/movie/${movieId}/recommendations`, { page })
+}
+
+export const getSimilarMovies = (movieId: number, page: number = 1): Promise<MovieResponse> => {
+  return fetchMovies(`/movie/${movieId}/similar`, { page })
+}
+
+export const getWatchProviders = async (movieId: number): Promise<any> => {
+  try {
+    const url = createUrl(`/movie/${movieId}/watch/providers`)
+    const response = await axios.get(url)
+    return response.data
+  } catch (error) {
+    console.error('시청 플랫폼 정보 요청 실패:', error)
+    throw error
+  }
+}
+
+export const getAvailableWatchProviders = async (): Promise<any> => {
+  try {
+    const url = createUrl('/watch/providers/movie', { watch_region: 'KR' })
+    const response = await axios.get(url)
+    return response.data
+  } catch (error) {
+    console.error('사용 가능한 플랫폼 목록 요청 실패:', error)
     throw error
   }
 }

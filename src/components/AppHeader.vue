@@ -13,7 +13,9 @@ const isScrolled = ref(false)
 const showBrowseMenu = ref(false)
 
 const handleScroll = () => {
-  isScrolled.value = window.scrollY > 50
+  // 히어로 배너 높이(90vh - 100px 정도) 이후에 헤더 배경 활성화
+  const heroHeight = window.innerHeight * 0.9 - 100
+  isScrolled.value = window.scrollY > heroHeight
 }
 
 const handleLogout = () => {
