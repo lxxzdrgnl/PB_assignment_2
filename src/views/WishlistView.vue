@@ -2,8 +2,6 @@
 import { ref, computed, watch } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation, Autoplay } from 'swiper/modules'
-import 'swiper/css'
-import 'swiper/css/navigation'
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import MovieCard from '@/components/MovieCard.vue'
@@ -296,11 +294,13 @@ watch(wishlist, (newWishlist) => {
             <Swiper
               v-else-if="hasRecommendations"
               :modules="modules"
-              :slides-per-view="2"
-              :space-between="10"
+              :slides-per-view="2.7"
+              :space-between="15"
               :navigation="true"
+              :loop="true"
               :autoplay="{ delay: 4000, disableOnInteraction: false }"
               :breakpoints="{
+                320: { slidesPerView: 2, spaceBetween: 10 },
                 480: { slidesPerView: 2, spaceBetween: 15 },
                 640: { slidesPerView: 3, spaceBetween: 15 },
                 768: { slidesPerView: 3, spaceBetween: 20 },
@@ -507,7 +507,7 @@ watch(wishlist, (newWishlist) => {
   flex-direction: column;
   align-items: flex-start;
   gap: 0.25rem;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.125rem; /* Restored reasonable space below title */
 }
 
 .recommendations-section .section-header h2.section-title {
@@ -515,29 +515,7 @@ watch(wishlist, (newWishlist) => {
 }
 
 .recommendations-slider {
-  padding: 1rem 0 1.5rem;
-}
-
-/* Swiper Custom Styles */
-:deep(.swiper-button-next),
-:deep(.swiper-button-prev) {
-  color: var(--primary-color);
-  background: rgba(0, 0, 0, 0.5);
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-}
-
-:deep(.swiper-button-next:hover),
-:deep(.swiper-button-prev:hover) {
-  background: var(--primary-color);
-  color: white;
-}
-
-:deep(.swiper-button-next::after),
-:deep(.swiper-button-prev::after) {
-  font-size: 1.2rem;
+  padding: 0.5rem 0 1.5rem; /* Restored reasonable space above slider */
 }
 
 @media (max-width: 768px) {
@@ -608,17 +586,6 @@ watch(wishlist, (newWishlist) => {
 
   .recommendations-section .section-title {
     font-size: 1.4rem;
-  }
-
-  :deep(.swiper-button-next),
-  :deep(.swiper-button-prev) {
-    width: 35px;
-    height: 35px;
-  }
-
-  :deep(.swiper-button-next::after),
-  :deep(.swiper-button-prev::after) {
-    font-size: 1rem;
   }
 }
 
