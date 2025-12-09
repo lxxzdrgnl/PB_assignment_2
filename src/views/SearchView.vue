@@ -6,14 +6,16 @@ import MovieCardSkeleton from '@/components/MovieCardSkeleton.vue'
 import MovieDetailModal from '@/components/MovieDetailModal.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import type { Movie, Genre } from '@/types/movie'
-import { discoverMovies, getGenres, searchMovies as searchMoviesAPI } from '@/utils/tmdb'
+import { discoverMovies, getGenres, searchMovies as searchMoviesAPI, getAvailableWatchProviders } from '@/utils/tmdb'
 import { useSearchHistory } from '@/composables/useSearchHistory'
 
 const movies = ref<Movie[]>([])
 const genres = ref<Genre[]>([])
+const watchProviders = ref<any[]>([])
 const loading = ref(false)
 const selectedGenre = ref<string>('')
 const selectedRating = ref<string>('')
+const selectedProvider = ref<string>('')
 const sortBy = ref<string>('random') // Changed to 'random'
 const selectedMovie = ref<Movie | null>(null)
 const showModal = ref(false)
@@ -46,6 +48,19 @@ const loadGenres = async () => {
     genres.value = await getGenres()
   } catch (err) {
     console.error('장르 목록 로드 실패:', err)
+  }
+}
+
+const loadWatchProviders = async () => {
+  try {
+    const response = await getAvailableWatchProviders()
+    // 한국에서 주요 플랫폼만 필터링
+    const majorProviders = [8, 337, 350, 356, 97, 119, 1899] // Netflix, Disney+, Apple TV+, Watcha, Google Play, Amazon, TVING
+    watchProviders.value = response.results
+      .filter((p: any) => majorProviders.includes(p.provider_id))
+      .sort((a: any, b: any) => a.display_priority - b.display_priority)
+  } catch (err) {
+    console.error('시청 플랫폼 목록 로드 실패:', err)
   }
 }
 
@@ -136,6 +151,11 @@ const searchMovies = async (append: boolean = false) => {
         params['vote_average.gte'] = selectedRating.value
       }
 
+      if (selectedProvider.value) {
+        params.with_watch_providers = selectedProvider.value
+        params.watch_region = 'KR'
+      }
+
       const response = await discoverMovies(params)
 
       let resultsToDisplay = response.results;
@@ -164,6 +184,7 @@ const resetFilters = () => {
   searchQuery.value = ''
   selectedGenre.value = ''
   selectedRating.value = ''
+  selectedProvider.value = ''
   sortBy.value = 'random' // Changed to 'random'
   currentPage.value = 1
   searchMovies()
@@ -241,6 +262,7 @@ const handleFilterChange = () => {
 
 onMounted(() => {
   loadGenres()
+  loadWatchProviders()
   searchMovies()
   window.addEventListener('scroll', handleScroll)
 })
@@ -361,9 +383,24 @@ onUnmounted(() => {
             </div>
 
             <div class="filter-group">
+              <label class="filter-label" for="provider">시청 플랫폼</label>
+              <select
+                id="provider"
+                class="filter-select"
+                v-model="selectedProvider"
+                @change="handleFilterChange"
+              >
+                <option value="">전체</option>
+                <option v-for="provider in watchProviders" :key="provider.provider_id" :value="provider.provider_id">
+                  {{ provider.provider_name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="filter-group">
               <label class="filter-label" for="sort">정렬</label>
               <select id="sort" class="filter-select" v-model="sortBy" @change="handleFilterChange">
-                <option value="random">랜덤</option> <!-- Added random sort option -->
+                <option value="random">랜덤</option>
                 <option value="popularity.desc">인기순 (높은순)</option>
                 <option value="popularity.asc">인기순 (낮은순)</option>
                 <option value="vote_average.desc">평점순 (높은순)</option>
