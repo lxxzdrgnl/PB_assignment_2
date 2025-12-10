@@ -4,7 +4,7 @@ import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation, Autoplay } from 'swiper/modules'
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
-import MovieCard from '@/components/MovieCard.vue'
+import LargeMovieCard from '@/components/LargeMovieCard.vue'
 import MovieDetailModal from '@/components/MovieDetailModal.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import type { Movie } from '@/types/movie'
@@ -272,7 +272,7 @@ watch(wishlist, (newWishlist) => {
           </div>
 
           <div class="movie-grid">
-            <MovieCard
+            <LargeMovieCard
               v-for="movie in filteredAndSortedMovies"
               :key="movie.id"
               :movie="movie"
@@ -310,7 +310,7 @@ watch(wishlist, (newWishlist) => {
               class="recommendations-slider"
             >
               <SwiperSlide v-for="movie in recommendations" :key="movie.id">
-                <MovieCard :movie="movie" @click="handleMovieClick" />
+                <LargeMovieCard :movie="movie" @click="handleMovieClick" />
               </SwiperSlide>
             </Swiper>
           </section>

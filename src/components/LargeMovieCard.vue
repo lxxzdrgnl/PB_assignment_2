@@ -113,32 +113,4 @@ const handleCardClick = () => {
   right: 0;
   padding: 1rem;
 }
-
-@media (max-width: 480px) {
-  .movie-card-click-hint {
-    font-size: 0.7rem; /* Reduced font size */
-    padding: 0.3rem 0.5rem; /* Reduced padding */
-    gap: 0.3rem; /* Reduced gap */
-  }
-
-  .movie-card-click-hint i {
-    font-size: 0.75rem; /* Reduced icon size */
-  }
-
-  .movie-card-overview {
-    font-size: 0.75rem; /* Further reduced font size */
-    -webkit-line-clamp: 2; /* Reduce to 2 lines for tighter space */
-  }
-
-  .movie-card-wishlist {
-    width: 30px; /* Reduced width */
-    height: 30px; /* Reduced height */
-    top: 0.5rem; /* Adjusted position */
-    right: 0.5rem; /* Adjusted position */
-  }
-
-  .movie-card-wishlist i {
-    font-size: 0.8rem; /* Reduced icon size */
-  }
-}
 </style>

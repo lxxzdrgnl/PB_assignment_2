@@ -4,7 +4,7 @@ import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation, Pagination, Autoplay } from 'swiper/modules'
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
-import MovieCard from '@/components/MovieCard.vue'
+import LargeMovieCard from '@/components/LargeMovieCard.vue'
 import MovieCardSkeleton from '@/components/MovieCardSkeleton.vue'
 import MovieDetailModal from '@/components/MovieDetailModal.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
@@ -199,7 +199,7 @@ onUnmounted(() => {
               <SwiperSlide v-for="(movie, index) in topMovies" :key="movie.id">
                 <div class="top-movie-card" @click="handleMovieClick(movie)">
                   <div class="top-movie-rank">{{ index + 1 }}</div>
-                  <MovieCard :movie="movie" />
+                  <LargeMovieCard :movie="movie" />
                 </div>
               </SwiperSlide>
             </Swiper>
@@ -230,7 +230,7 @@ onUnmounted(() => {
               class="movies-slider"
             >
               <SwiperSlide v-for="movie in firstPageMovies" :key="movie.id">
-                <MovieCard :movie="movie" @click="handleMovieClick" />
+                <LargeMovieCard :movie="movie" @click="handleMovieClick" />
               </SwiperSlide>
             </Swiper>
           </section>
@@ -247,7 +247,7 @@ onUnmounted(() => {
             </div>
 
             <div class="movie-grid">
-              <MovieCard v-for="movie in additionalMovies" :key="movie.id" :movie="movie" @click="handleMovieClick" />
+              <LargeMovieCard v-for="movie in additionalMovies" :key="movie.id" :movie="movie" @click="handleMovieClick" />
             </div>
           </section>
 
