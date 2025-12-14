@@ -5,20 +5,16 @@ import { Navigation, Pagination, Autoplay } from 'swiper/modules'
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import LargeMovieCard from '@/components/LargeMovieCard.vue'
-import MovieCardSkeleton from '@/components/MovieCardSkeleton.vue'
 import MovieDetailModal from '@/components/MovieDetailModal.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import InfiniteScrollView from '@/components/InfiniteScrollView.vue'
+import TableView from '@/components/TableView.vue'
 import type { Movie } from '@/types/movie'
 import { getPopularMovies, getBackdropUrl } from '@/utils/tmdb'
 
 const firstPageMovies = ref<Movie[]>([])
-const additionalMovies = ref<Movie[]>([])
 const topMovies = ref<Movie[]>([])
-const tableMovies = ref<Movie[]>([])
 const loading = ref(false)
-const isLoadingMore = ref(false)
-const currentPage = ref(1)
-const totalPages = ref(1)
 const showScrollTop = ref(false)
 const selectedMovie = ref<Movie | null>(null)
 const showModal = ref(false)
@@ -37,7 +33,6 @@ const loadInitialData = async () => {
     const movies = response.results
     topMovies.value = movies.slice(0, 10)
     firstPageMovies.value = movies.slice(10)
-    totalPages.value = response.total_pages
 
     if (response.results.length > 0) {
       startHeroRotation()
@@ -49,61 +44,8 @@ const loadInitialData = async () => {
   }
 }
 
-const loadAdditionalMovies = async (page: number, append: boolean = false) => {
-  try {
-    if (append) {
-      isLoadingMore.value = true
-    } else {
-      loading.value = true
-    }
-
-    const response = await getPopularMovies(page)
-
-    if (isTableView.value) {
-      // Table View 모드
-      tableMovies.value = response.results
-    } else {
-      // Infinite Scroll 모드
-      if (append) {
-        additionalMovies.value = [...additionalMovies.value, ...response.results]
-      } else {
-        additionalMovies.value = response.results
-      }
-    }
-
-    currentPage.value = page
-  } catch (err) {
-    console.error('영화 데이터 로드 실패:', err)
-  } finally {
-    loading.value = false
-    isLoadingMore.value = false
-  }
-}
-
 const switchViewMode = (mode: 'infinite' | 'table') => {
   viewMode.value = mode
-  currentPage.value = 2
-  additionalMovies.value = []
-  tableMovies.value = []
-  loadAdditionalMovies(2)
-}
-
-const goToPage = (page: number) => {
-  if (page >= 2 && page <= totalPages.value) {
-    loadAdditionalMovies(page)
-  }
-}
-
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    goToPage(currentPage.value + 1)
-  }
-}
-
-const prevPage = () => {
-  if (currentPage.value > 2) {
-    goToPage(currentPage.value - 1)
-  }
 }
 
 const selectRandomHeroMovie = () => {
@@ -131,15 +73,6 @@ const stopHeroRotation = () => {
 
 const handleScroll = () => {
   showScrollTop.value = window.scrollY > 300
-
-  // 무한 스크롤은 infinite 모드에서만 작동
-  if (!isTableView.value && !loading.value && !isLoadingMore.value) {
-    const scrollBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 500
-
-    if (scrollBottom && currentPage.value < totalPages.value) {
-      loadAdditionalMovies(currentPage.value + 1, true)
-    }
-  }
 }
 
 const scrollToTop = () => {
@@ -279,100 +212,40 @@ onUnmounted(() => {
             </Swiper>
           </section>
 
-          <!-- View Mode Toggle -->
-          <section class="view-mode-section">
-            <div class="view-mode-toggle">
-              <button
-                class="view-mode-btn"
-                :class="{ active: !isTableView }"
-                @click="switchViewMode('infinite')"
-              >
-                <i class="fas fa-infinity"></i>
-                무한 스크롤
-              </button>
-              <button
-                class="view-mode-btn"
-                :class="{ active: isTableView }"
-                @click="switchViewMode('table')"
-              >
-                <i class="fas fa-table"></i>
-                테이블 뷰
-              </button>
-            </div>
-          </section>
-
-          <!-- Table View Mode -->
-          <section v-if="isTableView" class="section">
+          <!-- View Section with Toggle -->
+          <section class="section">
             <div class="section-header">
               <h2 class="section-title">더 많은 인기 영화</h2>
-              <div class="section-info">
-                페이지 {{ currentPage }} / {{ totalPages }}
+              <div class="view-mode-toggle">
+                <button
+                  class="view-mode-btn"
+                  :class="{ active: !isTableView }"
+                  @click="switchViewMode('infinite')"
+                >
+                  <i class="fas fa-infinity"></i>
+                  무한 스크롤
+                </button>
+                <button
+                  class="view-mode-btn"
+                  :class="{ active: isTableView }"
+                  @click="switchViewMode('table')"
+                >
+                  <i class="fas fa-table"></i>
+                  테이블 뷰
+                </button>
               </div>
             </div>
 
-            <div class="table-view-grid">
-              <LargeMovieCard
-                v-for="movie in tableMovies"
-                :key="movie.id"
-                :movie="movie"
-                @click="handleMovieClick"
-              />
-            </div>
-
-            <!-- Pagination -->
-            <div class="pagination">
-              <button
-                class="pagination-btn"
-                :disabled="currentPage === 2"
-                @click="prevPage"
-              >
-                <i class="fas fa-chevron-left"></i>
-                이전
-              </button>
-
-              <div class="pagination-info">
-                페이지 {{ currentPage }} / {{ totalPages }}
-              </div>
-
-              <button
-                class="pagination-btn"
-                :disabled="currentPage === totalPages"
-                @click="nextPage"
-              >
-                다음
-                <i class="fas fa-chevron-right"></i>
-              </button>
+            <!-- Views Container with Transition -->
+            <div class="views-container">
+              <Transition name="view-fade" mode="out-in">
+                <KeepAlive>
+                  <InfiniteScrollView v-if="!isTableView" key="infinite" @movie-click="handleMovieClick" />
+                  <TableView v-else key="table" @movie-click="handleMovieClick" />
+                </KeepAlive>
+              </Transition>
             </div>
           </section>
-
-          <!-- Infinite Scroll Mode - Additional Movies Grid -->
-          <section v-else-if="additionalMovies.length > 0" class="section">
-            <div class="section-header">
-              <h2 class="section-title">
-                더 많은 인기 영화
-              </h2>
-              <div class="section-info">
-                {{ additionalMovies.length }}개의 영화
-              </div>
-            </div>
-
-            <div class="movie-grid">
-              <LargeMovieCard v-for="movie in additionalMovies" :key="movie.id" :movie="movie" @click="handleMovieClick" />
-            </div>
-          </section>
-
-          <!-- Loading More Skeleton -->
-          <div v-if="isLoadingMore" class="loading-more">
-            <MovieCardSkeleton v-for="i in 6" :key="'skeleton-' + i" />
-          </div>
-
-          <!-- Load More Info -->
-          <div v-if="currentPage < totalPages" class="load-more-info">
-            <p>
-              <i class="fas fa-arrow-down"></i>
-              아래로 스크롤하면 더 많은 영화를 볼 수 있습니다
-            </p>
-          </div>
           </div>
         </div>
 
@@ -384,7 +257,6 @@ onUnmounted(() => {
         >
           <i class="fas fa-arrow-up"></i>
         </button>
-      </div>
     </main>
 
     <AppFooter />
@@ -475,6 +347,7 @@ onUnmounted(() => {
   font-size: 3.5rem;
   font-weight: 900;
   margin-bottom: 1rem;
+  color: #ffffff;
   text-shadow: 2px 2px 20px rgba(0, 0, 0, 0.9);
   line-height: 1.2;
 }
@@ -497,7 +370,7 @@ onUnmounted(() => {
 }
 
 .hero-banner-year {
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.8);
   font-weight: 500;
 }
 
@@ -507,7 +380,7 @@ onUnmounted(() => {
   line-height: 1.7;
   margin-bottom: 2rem;
   text-shadow: 1px 1px 8px rgba(0, 0, 0, 0.9);
-  color: var(--text-primary);
+  color: #ffffff;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -541,6 +414,30 @@ onUnmounted(() => {
 .hero-fade-enter-from,
 .hero-fade-leave-to {
   opacity: 0;
+}
+
+/* View Fade Transition */
+.views-container {
+  position: relative;
+  min-height: 400px;
+}
+
+.view-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.view-fade-leave-active {
+  transition: all 0.2s ease-in;
+}
+
+.view-fade-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.view-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 
 /* Top Movies Slider */
@@ -585,20 +482,12 @@ onUnmounted(() => {
 }
 
 /* View Mode Toggle */
-.view-mode-section {
-  margin-bottom: 2rem;
-  padding-top: 2rem;
-}
-
 .view-mode-toggle {
   display: flex;
-  gap: 1rem;
-  justify-content: center;
+  gap: 0.5rem;
   background-color: var(--bg-light);
-  padding: 0.5rem;
-  border-radius: 12px;
-  width: fit-content;
-  margin: 0 auto;
+  padding: 0.25rem;
+  border-radius: 8px;
 }
 
 .view-mode-btn {
@@ -638,12 +527,6 @@ onUnmounted(() => {
   margin-bottom: 2rem;
 }
 
-.section-info {
-  font-size: 0.95rem;
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
 /* ... other styles ... */
 
 @media (max-width: 1024px) {
@@ -654,15 +537,9 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
-  .view-mode-toggle {
-    width: 100%;
-  }
-
   .view-mode-btn {
-    flex: 1;
-    justify-content: center;
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
   }
 
   .table-view-grid {
@@ -683,18 +560,13 @@ onUnmounted(() => {
 }
 
 @media (max-width: 480px) {
-  .view-mode-section {
-    padding-top: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
   .view-mode-btn {
-    font-size: 0.85rem;
-    padding: 0.6rem 0.75rem;
+    font-size: 0.8rem;
+    padding: 0.5rem 0.6rem;
   }
 
   .view-mode-btn i {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 
   .table-view-grid {

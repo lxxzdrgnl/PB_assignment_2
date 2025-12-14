@@ -69,7 +69,7 @@ const handleCardClick = () => {
 <style scoped>
 .movie-card-overview {
   font-size: 0.85rem;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.9);
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -86,8 +86,8 @@ const handleCardClick = () => {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.8rem;
-  color: var(--text-primary);
-  background-color: rgba(229, 9, 20, 0.9);
+  color: white;
+  background-color: var(--primary-color);
   padding: 0.5rem 0.75rem;
   border-radius: 4px;
   font-weight: 600;

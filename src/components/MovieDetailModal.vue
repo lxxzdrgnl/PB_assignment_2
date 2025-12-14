@@ -489,6 +489,7 @@ watch(() => props.show, (newVal) => {
   font-weight: 900;
   margin-bottom: 1rem;
   text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
+  color: white;
 }
 
 .modal-meta {
