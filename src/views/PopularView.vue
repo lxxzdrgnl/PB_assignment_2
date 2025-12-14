@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import { Navigation, Pagination, Autoplay } from 'swiper/modules'
 import AppHeader from '@/components/AppHeader.vue'
@@ -14,6 +14,7 @@ import { getPopularMovies, getBackdropUrl } from '@/utils/tmdb'
 const firstPageMovies = ref<Movie[]>([])
 const additionalMovies = ref<Movie[]>([])
 const topMovies = ref<Movie[]>([])
+const tableMovies = ref<Movie[]>([])
 const loading = ref(false)
 const isLoadingMore = ref(false)
 const currentPage = ref(1)
@@ -22,11 +23,33 @@ const showScrollTop = ref(false)
 const selectedMovie = ref<Movie | null>(null)
 const showModal = ref(false)
 const heroMovie = ref<Movie | null>(null)
+const viewMode = ref<'infinite' | 'table'>('infinite')
 let heroInterval: number | null = null
 
 const modules = [Navigation, Pagination, Autoplay]
 
-const loadMovies = async (page: number, append: boolean = false) => {
+const isTableView = computed(() => viewMode.value === 'table')
+
+const loadInitialData = async () => {
+  try {
+    loading.value = true
+    const response = await getPopularMovies(1)
+    const movies = response.results
+    topMovies.value = movies.slice(0, 10)
+    firstPageMovies.value = movies.slice(10)
+    totalPages.value = response.total_pages
+
+    if (response.results.length > 0) {
+      startHeroRotation()
+    }
+  } catch (err) {
+    console.error('영화 데이터 로드 실패:', err)
+  } finally {
+    loading.value = false
+  }
+}
+
+const loadAdditionalMovies = async (page: number, append: boolean = false) => {
   try {
     if (append) {
       isLoadingMore.value = true
@@ -36,30 +59,50 @@ const loadMovies = async (page: number, append: boolean = false) => {
 
     const response = await getPopularMovies(page)
 
-    if (page === 1) {
-      // 첫 페이지는 슬라이더용으로 저장
-      const movies = response.results
-      topMovies.value = movies.slice(0, 10)
-      firstPageMovies.value = movies.slice(10)
-      additionalMovies.value = []
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-
-      // Hero 배너 시작
-      if (response.results.length > 0) {
-        startHeroRotation()
-      }
+    if (isTableView.value) {
+      // Table View 모드
+      tableMovies.value = response.results
     } else {
-      // 추가 페이지는 그리드용으로 추가
-      additionalMovies.value = [...additionalMovies.value, ...response.results]
+      // Infinite Scroll 모드
+      if (append) {
+        additionalMovies.value = [...additionalMovies.value, ...response.results]
+      } else {
+        additionalMovies.value = response.results
+      }
     }
 
-    totalPages.value = response.total_pages
     currentPage.value = page
   } catch (err) {
     console.error('영화 데이터 로드 실패:', err)
   } finally {
     loading.value = false
     isLoadingMore.value = false
+  }
+}
+
+const switchViewMode = (mode: 'infinite' | 'table') => {
+  viewMode.value = mode
+  currentPage.value = 2
+  additionalMovies.value = []
+  tableMovies.value = []
+  loadAdditionalMovies(2)
+}
+
+const goToPage = (page: number) => {
+  if (page >= 2 && page <= totalPages.value) {
+    loadAdditionalMovies(page)
+  }
+}
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    goToPage(currentPage.value + 1)
+  }
+}
+
+const prevPage = () => {
+  if (currentPage.value > 2) {
+    goToPage(currentPage.value - 1)
   }
 }
 
@@ -89,11 +132,12 @@ const stopHeroRotation = () => {
 const handleScroll = () => {
   showScrollTop.value = window.scrollY > 300
 
-  if (!loading.value && !isLoadingMore.value) {
+  // 무한 스크롤은 infinite 모드에서만 작동
+  if (!isTableView.value && !loading.value && !isLoadingMore.value) {
     const scrollBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 500
 
     if (scrollBottom && currentPage.value < totalPages.value) {
-      loadMovies(currentPage.value + 1, true)
+      loadAdditionalMovies(currentPage.value + 1, true)
     }
   }
 }
@@ -115,7 +159,7 @@ const handleCloseModal = () => {
 }
 
 onMounted(() => {
-  loadMovies(1)
+  loadInitialData()
   window.addEventListener('scroll', handleScroll)
 })
 
@@ -235,8 +279,74 @@ onUnmounted(() => {
             </Swiper>
           </section>
 
-          <!-- Additional Movies Grid (Infinite Scroll) -->
-          <section v-if="additionalMovies.length > 0" class="section">
+          <!-- View Mode Toggle -->
+          <section class="view-mode-section">
+            <div class="view-mode-toggle">
+              <button
+                class="view-mode-btn"
+                :class="{ active: !isTableView }"
+                @click="switchViewMode('infinite')"
+              >
+                <i class="fas fa-infinity"></i>
+                무한 스크롤
+              </button>
+              <button
+                class="view-mode-btn"
+                :class="{ active: isTableView }"
+                @click="switchViewMode('table')"
+              >
+                <i class="fas fa-table"></i>
+                테이블 뷰
+              </button>
+            </div>
+          </section>
+
+          <!-- Table View Mode -->
+          <section v-if="isTableView" class="section">
+            <div class="section-header">
+              <h2 class="section-title">더 많은 인기 영화</h2>
+              <div class="section-info">
+                페이지 {{ currentPage }} / {{ totalPages }}
+              </div>
+            </div>
+
+            <div class="table-view-grid">
+              <LargeMovieCard
+                v-for="movie in tableMovies"
+                :key="movie.id"
+                :movie="movie"
+                @click="handleMovieClick"
+              />
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+              <button
+                class="pagination-btn"
+                :disabled="currentPage === 2"
+                @click="prevPage"
+              >
+                <i class="fas fa-chevron-left"></i>
+                이전
+              </button>
+
+              <div class="pagination-info">
+                페이지 {{ currentPage }} / {{ totalPages }}
+              </div>
+
+              <button
+                class="pagination-btn"
+                :disabled="currentPage === totalPages"
+                @click="nextPage"
+              >
+                다음
+                <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
+          </section>
+
+          <!-- Infinite Scroll Mode - Additional Movies Grid -->
+          <section v-else-if="additionalMovies.length > 0" class="section">
             <div class="section-header">
               <h2 class="section-title">
                 더 많은 인기 영화
@@ -263,9 +373,11 @@ onUnmounted(() => {
               아래로 스크롤하면 더 많은 영화를 볼 수 있습니다
             </p>
           </div>
+          </div>
         </div>
 
         <button
+          v-if="!isTableView"
           class="scroll-top-btn"
           :class="{ visible: showScrollTop }"
           @click="scrollToTop"
@@ -315,10 +427,20 @@ onUnmounted(() => {
   height: 100%;
   background: linear-gradient(
     180deg,
-    rgba(0, 0, 0, 0.8) 0%,
-    transparent 30%,
-    transparent 60%,
-    var(--bg-dark) 100%
+    rgba(0, 0, 0, 0.3) 0%,
+    transparent 40%,
+    transparent 70%,
+    #141414 100%
+  );
+}
+
+[data-theme='light'] .hero-banner-overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.3) 0%,
+    transparent 40%,
+    transparent 70%,
+    #f5f5f5 100%
   );
 }
 
@@ -462,9 +584,92 @@ onUnmounted(() => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
+/* View Mode Toggle */
+.view-mode-section {
+  margin-bottom: 2rem;
+  padding-top: 2rem;
+}
+
+.view-mode-toggle {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  background-color: var(--bg-light);
+  padding: 0.5rem;
+  border-radius: 12px;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.view-mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.view-mode-btn:hover {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.view-mode-btn.active {
+  background-color: var(--primary-color);
+  color: #ffffff;
+}
+
+.view-mode-btn i {
+  font-size: 1.1rem;
+}
+
+/* Table View Grid */
+.table-view-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.section-info {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
 /* ... other styles ... */
 
+@media (max-width: 1024px) {
+  .table-view-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+}
+
 @media (max-width: 768px) {
+  .view-mode-toggle {
+    width: 100%;
+  }
+
+  .view-mode-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .table-view-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.75rem;
+  }
+
   /* ... other styles ... */
   .top-movie-rank {
     min-width: 32px;
@@ -478,6 +683,25 @@ onUnmounted(() => {
 }
 
 @media (max-width: 480px) {
+  .view-mode-section {
+    padding-top: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .view-mode-btn {
+    font-size: 0.85rem;
+    padding: 0.6rem 0.75rem;
+  }
+
+  .view-mode-btn i {
+    font-size: 1rem;
+  }
+
+  .table-view-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
   /* ... other styles ... */
   .top-movie-rank {
     min-width: 30px;

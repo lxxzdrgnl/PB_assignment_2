@@ -596,10 +596,20 @@ onUnmounted(() => {
   height: 100%;
   background: linear-gradient(
     180deg,
-    rgba(0, 0, 0, 0.8) 0%,
-    transparent 30%,
-    transparent 60%,
-    var(--bg-dark) 100%
+    rgba(0, 0, 0, 0.3) 0%,
+    transparent 40%,
+    transparent 70%,
+    #141414 100%
+  );
+}
+
+[data-theme='light'] .hero-banner-overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.3) 0%,
+    transparent 40%,
+    transparent 70%,
+    #f5f5f5 100%
   );
 }
 
@@ -621,6 +631,7 @@ onUnmounted(() => {
   margin-bottom: 1rem;
   text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
   line-height: 1.2;
+  color: #ffffff;
 }
 
 .hero-banner-meta {
@@ -629,6 +640,7 @@ onUnmounted(() => {
   gap: 1.5rem;
   margin-bottom: 1rem;
   font-size: 1.1rem;
+  color: #ffffff;
 }
 
 .hero-banner-rating {
@@ -640,7 +652,7 @@ onUnmounted(() => {
 }
 
 .hero-banner-year {
-  color: var(--text-secondary);
+  color: #e0e0e0;
 }
 
 .hero-banner-description {
@@ -649,7 +661,7 @@ onUnmounted(() => {
   line-height: 1.6;
   margin-bottom: 2rem;
   text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8);
-  color: var(--text-primary);
+  color: #ffffff;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;

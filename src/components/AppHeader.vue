@@ -197,6 +197,12 @@ onUnmounted(() => {
   cursor: pointer;
   color: var(--text-primary);
   padding: 0.5rem 0;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='light'] .header:not(.scrolled) .browse-toggle {
+  color: #ffffff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .browse-toggle .fa-chevron-down {
@@ -308,6 +314,13 @@ onUnmounted(() => {
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   transition: all var(--transition-speed) var(--transition-ease);
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='light'] .header:not(.scrolled) .theme-toggle {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.5);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .theme-toggle:hover {
@@ -327,6 +340,13 @@ onUnmounted(() => {
   letter-spacing: normal !important;
   white-space: nowrap;
   min-width: auto;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='light'] .header:not(.scrolled) .header-logout {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.5);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 @media (max-width: 768px) {
@@ -362,6 +382,15 @@ onUnmounted(() => {
   .header-user-desktop {
     display: none;
   }
+}
+
+.header-user-name {
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='light'] .header:not(.scrolled) .header-user-name {
+  color: #ffffff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 @media (max-width: 480px) {
