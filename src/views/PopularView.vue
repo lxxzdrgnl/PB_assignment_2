@@ -1,66 +1,49 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { Swiper, SwiperSlide } from 'swiper/vue'
-import { Navigation, Pagination, Autoplay } from 'swiper/modules'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import LargeMovieCard from '@/components/LargeMovieCard.vue'
-import MovieCardSkeleton from '@/components/MovieCardSkeleton.vue'
+import MovieSlider from '@/components/MovieSlider.vue'
 import MovieDetailModal from '@/components/MovieDetailModal.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import InfiniteScrollView from '@/components/InfiniteScrollView.vue'
+import TableView from '@/components/TableView.vue'
 import type { Movie } from '@/types/movie'
 import { getPopularMovies, getBackdropUrl } from '@/utils/tmdb'
 
 const firstPageMovies = ref<Movie[]>([])
-const additionalMovies = ref<Movie[]>([])
 const topMovies = ref<Movie[]>([])
 const loading = ref(false)
-const isLoadingMore = ref(false)
-const currentPage = ref(1)
-const totalPages = ref(1)
 const showScrollTop = ref(false)
 const selectedMovie = ref<Movie | null>(null)
 const showModal = ref(false)
 const heroMovie = ref<Movie | null>(null)
+const viewMode = ref<'infinite' | 'table'>('infinite')
+const moreMoviesSection = ref<HTMLElement | null>(null)
 let heroInterval: number | null = null
 
-const modules = [Navigation, Pagination, Autoplay]
+const isTableView = computed(() => viewMode.value === 'table')
 
-const loadMovies = async (page: number, append: boolean = false) => {
+const loadInitialData = async () => {
   try {
-    if (append) {
-      isLoadingMore.value = true
-    } else {
-      loading.value = true
+    loading.value = true
+    const response = await getPopularMovies(1)
+    const movies = response.results
+    topMovies.value = movies.slice(0, 10)
+    firstPageMovies.value = movies.slice(10)
+
+    if (response.results.length > 0) {
+      startHeroRotation()
     }
-
-    const response = await getPopularMovies(page)
-
-    if (page === 1) {
-      // 첫 페이지는 슬라이더용으로 저장
-      const movies = response.results
-      topMovies.value = movies.slice(0, 10)
-      firstPageMovies.value = movies.slice(10)
-      additionalMovies.value = []
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-
-      // Hero 배너 시작
-      if (response.results.length > 0) {
-        startHeroRotation()
-      }
-    } else {
-      // 추가 페이지는 그리드용으로 추가
-      additionalMovies.value = [...additionalMovies.value, ...response.results]
-    }
-
-    totalPages.value = response.total_pages
-    currentPage.value = page
   } catch (err) {
     console.error('영화 데이터 로드 실패:', err)
   } finally {
     loading.value = false
-    isLoadingMore.value = false
   }
+}
+
+const switchViewMode = (mode: 'infinite' | 'table') => {
+  viewMode.value = mode
 }
 
 const selectRandomHeroMovie = () => {
@@ -88,14 +71,6 @@ const stopHeroRotation = () => {
 
 const handleScroll = () => {
   showScrollTop.value = window.scrollY > 300
-
-  if (!loading.value && !isLoadingMore.value) {
-    const scrollBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 500
-
-    if (scrollBottom && currentPage.value < totalPages.value) {
-      loadMovies(currentPage.value + 1, true)
-    }
-  }
 }
 
 const scrollToTop = () => {
@@ -114,8 +89,21 @@ const handleCloseModal = () => {
   }, 300)
 }
 
+const handlePageChange = () => {
+  if (moreMoviesSection.value) {
+    const headerOffset = 80
+    const elementPosition = moreMoviesSection.value.getBoundingClientRect().top
+    const offsetPosition = elementPosition + window.pageYOffset - headerOffset
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth'
+    })
+  }
+}
+
 onMounted(() => {
-  loadMovies(1)
+  loadInitialData()
   window.addEventListener('scroll', handleScroll)
 })
 
@@ -178,31 +166,20 @@ onUnmounted(() => {
               </h2>
             </div>
 
-            <Swiper
-              :modules="modules"
-              :slides-per-view="2.7"
-              :space-between="15"
-              :navigation="true"
-              :loop="true"
-              :pagination="{ clickable: true }"
-              :autoplay="{ delay: 3500, disableOnInteraction: false }"
-              :breakpoints="{
-                320: { slidesPerView: 2, spaceBetween: 10 },
-                480: { slidesPerView: 2, spaceBetween: 15 },
-                640: { slidesPerView: 3, spaceBetween: 15 },
-                768: { slidesPerView: 3, spaceBetween: 20 },
-                1024: { slidesPerView: 4, spaceBetween: 20 },
-                1280: { slidesPerView: 5, spaceBetween: 20 }
-              }"
-              class="top-movies-slider"
+            <MovieSlider
+              :movies="topMovies"
+              :autoplay="true"
+              :autoplay-delay="3500"
+              :pagination="true"
+              custom-class="top-movies-slider"
             >
-              <SwiperSlide v-for="(movie, index) in topMovies" :key="movie.id">
+              <template #default="{ movie }">
                 <div class="top-movie-card" @click="handleMovieClick(movie)">
-                  <div class="top-movie-rank">{{ index + 1 }}</div>
+                  <div class="top-movie-rank">{{ topMovies.indexOf(movie) + 1 }}</div>
                   <LargeMovieCard :movie="movie" />
                 </div>
-              </SwiperSlide>
-            </Swiper>
+              </template>
+            </MovieSlider>
           </section>
 
           <!-- First Page Movies Slider -->
@@ -213,66 +190,58 @@ onUnmounted(() => {
               </h2>
             </div>
 
-            <Swiper
-              :modules="modules"
-              :slides-per-view="2.7"
-              :space-between="15"
-              :navigation="true"
-              :loop="true"
-              :breakpoints="{
-                320: { slidesPerView: 2, spaceBetween: 10 },
-                480: { slidesPerView: 2, spaceBetween: 15 },
-                640: { slidesPerView: 3, spaceBetween: 15 },
-                768: { slidesPerView: 3, spaceBetween: 20 },
-                1024: { slidesPerView: 4, spaceBetween: 20 },
-                1280: { slidesPerView: 5, spaceBetween: 20 }
-              }"
-              class="movies-slider"
-            >
-              <SwiperSlide v-for="movie in firstPageMovies" :key="movie.id">
+            <MovieSlider :movies="firstPageMovies">
+              <template #default="{ movie }">
                 <LargeMovieCard :movie="movie" @click="handleMovieClick" />
-              </SwiperSlide>
-            </Swiper>
+              </template>
+            </MovieSlider>
           </section>
 
-          <!-- Additional Movies Grid (Infinite Scroll) -->
-          <section v-if="additionalMovies.length > 0" class="section">
+          <!-- View Section with Toggle -->
+          <section ref="moreMoviesSection" class="section">
             <div class="section-header">
-              <h2 class="section-title">
-                더 많은 인기 영화
-              </h2>
-              <div class="section-info">
-                {{ additionalMovies.length }}개의 영화
+              <h2 class="section-title">더 많은 인기 영화</h2>
+              <div class="view-mode-toggle">
+                <button
+                  class="view-mode-btn"
+                  :class="{ active: !isTableView }"
+                  @click="switchViewMode('infinite')"
+                >
+                  <i class="fas fa-infinity"></i>
+                  무한 스크롤
+                </button>
+                <button
+                  class="view-mode-btn"
+                  :class="{ active: isTableView }"
+                  @click="switchViewMode('table')"
+                >
+                  <i class="fas fa-table"></i>
+                  테이블 뷰
+                </button>
               </div>
             </div>
 
-            <div class="movie-grid">
-              <LargeMovieCard v-for="movie in additionalMovies" :key="movie.id" :movie="movie" @click="handleMovieClick" />
+            <!-- Views Container with Transition -->
+            <div class="views-container">
+              <Transition name="view-fade" mode="out-in">
+                <KeepAlive>
+                  <InfiniteScrollView v-if="!isTableView" key="infinite" @movie-click="handleMovieClick" />
+                  <TableView v-else key="table" @movie-click="handleMovieClick" @page-change="handlePageChange" />
+                </KeepAlive>
+              </Transition>
             </div>
           </section>
-
-          <!-- Loading More Skeleton -->
-          <div v-if="isLoadingMore" class="loading-more">
-            <MovieCardSkeleton v-for="i in 6" :key="'skeleton-' + i" />
-          </div>
-
-          <!-- Load More Info -->
-          <div v-if="currentPage < totalPages" class="load-more-info">
-            <p>
-              <i class="fas fa-arrow-down"></i>
-              아래로 스크롤하면 더 많은 영화를 볼 수 있습니다
-            </p>
           </div>
         </div>
 
         <button
+          v-if="!isTableView"
           class="scroll-top-btn"
           :class="{ visible: showScrollTop }"
           @click="scrollToTop"
         >
           <i class="fas fa-arrow-up"></i>
         </button>
-      </div>
     </main>
 
     <AppFooter />
@@ -293,7 +262,7 @@ onUnmounted(() => {
   height: 90vh;
   min-height: 650px;
   max-height: 850px;
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
   overflow: hidden;
 }
 
@@ -315,23 +284,21 @@ onUnmounted(() => {
   height: 100%;
   background: linear-gradient(
     180deg,
-    rgba(0, 0, 0, 0.8) 0%,
-    transparent 30%,
-    transparent 60%,
-    var(--bg-dark) 100%
+    rgba(0, 0, 0, 0.3) 0%,
+    transparent 40%,
+    transparent 70%,
+    #141414 100%
   );
 }
 
-.hero-banner-content {
-  position: relative;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 2rem;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding-bottom: 3rem;
+[data-theme='light'] .hero-banner-overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.3) 0%,
+    transparent 40%,
+    transparent 70%,
+    #f5f5f5 100%
+  );
 }
 
 .hero-badge {
@@ -339,7 +306,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 0.5rem;
   background: linear-gradient(135deg, var(--primary-color), #ff6b35);
-  color: white;
+  color: var(--text-primary);
   padding: 0.5rem 1.25rem;
   border-radius: 50px;
   font-weight: 600;
@@ -349,33 +316,19 @@ onUnmounted(() => {
   box-shadow: 0 4px 15px rgba(230, 57, 70, 0.4);
 }
 
+/* PopularView specific overrides */
 .hero-banner-title {
   font-size: 3.5rem;
-  font-weight: 900;
-  margin-bottom: 1rem;
   text-shadow: 2px 2px 20px rgba(0, 0, 0, 0.9);
-  line-height: 1.2;
-}
-
-.hero-banner-meta {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
 }
 
 .hero-banner-rating {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #ffd700;
   font-weight: 700;
   font-size: 1.2rem;
 }
 
 .hero-banner-year {
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.8);
   font-weight: 500;
 }
 
@@ -383,23 +336,10 @@ onUnmounted(() => {
   max-width: 700px;
   font-size: 1.15rem;
   line-height: 1.7;
-  margin-bottom: 2rem;
   text-shadow: 1px 1px 8px rgba(0, 0, 0, 0.9);
-  color: var(--text-primary);
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.hero-banner-actions {
-  display: flex;
-  gap: 1rem;
 }
 
 .hero-banner-actions .btn {
-  padding: 1rem 2.5rem;
-  font-size: 1.1rem;
   font-weight: 600;
   box-shadow: 0 4px 20px rgba(230, 57, 70, 0.4);
   transition: all 0.3s ease;
@@ -410,20 +350,49 @@ onUnmounted(() => {
   box-shadow: 0 6px 30px rgba(230, 57, 70, 0.6);
 }
 
-/* Hero Fade Transition */
+/* Hero Fade override */
 .hero-fade-enter-active,
 .hero-fade-leave-active {
   transition: opacity 0.8s ease;
 }
 
-.hero-fade-enter-from,
-.hero-fade-leave-to {
-  opacity: 0;
+/* View Fade Transition */
+.views-container {
+  position: relative;
+  min-height: 400px;
 }
 
-/* Top Movies Slider */
-.top-movies-slider {
-  padding: 1rem 0 1.5rem;
+.view-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.view-fade-leave-active {
+  transition: all 0.2s ease-in;
+}
+
+.view-fade-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.view-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+/* Section Header Override */
+.section .section-header {
+  margin-bottom: 0rem;
+}
+
+/* All Movie Sliders */
+.top-movies-slider,
+:deep(.movies-slider) {
+  padding: 0.25rem 0 1rem !important;
+}
+
+:deep(.movies-slider .swiper) {
+  padding: 0.25rem 0 0.5rem !important;
 }
 
 .top-movie-card {
@@ -462,9 +431,72 @@ onUnmounted(() => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
+/* View Mode Toggle */
+.view-mode-toggle {
+  display: flex;
+  gap: 0.5rem;
+  background-color: var(--bg-light);
+  padding: 0.25rem;
+  border-radius: 8px;
+}
+
+.view-mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.view-mode-btn:hover {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.view-mode-btn.active {
+  background-color: var(--primary-color);
+  color: #ffffff;
+}
+
+.view-mode-btn i {
+  font-size: 1.1rem;
+}
+
+/* Table View Grid */
+.table-view-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
 /* ... other styles ... */
 
+@media (max-width: 1024px) {
+  .table-view-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+}
+
 @media (max-width: 768px) {
+  .view-mode-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .table-view-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.75rem;
+  }
+
   /* ... other styles ... */
   .top-movie-rank {
     min-width: 32px;
@@ -478,6 +510,20 @@ onUnmounted(() => {
 }
 
 @media (max-width: 480px) {
+  .view-mode-btn {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.6rem;
+  }
+
+  .view-mode-btn i {
+    font-size: 0.9rem;
+  }
+
+  .table-view-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
   /* ... other styles ... */
   .top-movie-rank {
     min-width: 30px;

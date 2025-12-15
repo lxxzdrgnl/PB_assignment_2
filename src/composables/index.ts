@@ -24,3 +24,7 @@ export type { WatchHistoryItem } from './useWatchHistory'
 
 // 영화 추천
 export { useRecommendations } from './useRecommendations'
+
+// 테마 관리
+export { useTheme } from './useTheme'
+export type { Theme as ThemeMode } from './useTheme'

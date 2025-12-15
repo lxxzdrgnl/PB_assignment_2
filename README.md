@@ -2,6 +2,10 @@
 
 Netflix와 유사한 프론트엔드 데모 사이트입니다. Vue.js 3, TypeScript, TMDB API를 활용하여 제작되었습니다.
 
+## 🌐 Live Demo
+
+**배포 URL**: [https://lxxzdrgnl.github.io/PB_assignment_2/](https://lxxzdrgnl.github.io/PB_assignment_2/)
+
 ## 📋 프로젝트 개요
 
 - **프로젝트명**: MovieFlix

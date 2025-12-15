@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { Swiper, SwiperSlide } from 'swiper/vue'
-import { Navigation, Autoplay } from 'swiper/modules'
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
 import LargeMovieCard from '@/components/LargeMovieCard.vue'
+import MovieSlider from '@/components/MovieSlider.vue'
 import MovieDetailModal from '@/components/MovieDetailModal.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import type { Movie } from '@/types/movie'
@@ -20,8 +19,6 @@ const selectedMovie = ref<Movie | null>(null)
 const showModal = ref(false)
 const sortBy = ref<string>('date_added') // 추가된 순서
 const filterGenre = ref<string>('')
-
-const modules = [Navigation, Autoplay]
 
 // 통계 계산
 const stats = computed(() => {
@@ -291,28 +288,17 @@ watch(wishlist, (newWishlist) => {
 
             <LoadingSpinner v-if="recommendationsLoading" text="추천 영화를 찾고 있습니다..." />
 
-            <Swiper
+            <MovieSlider
               v-else-if="hasRecommendations"
-              :modules="modules"
-              :slides-per-view="2.7"
-              :space-between="15"
-              :navigation="true"
-              :loop="true"
-              :autoplay="{ delay: 4000, disableOnInteraction: false }"
-              :breakpoints="{
-                320: { slidesPerView: 2, spaceBetween: 10 },
-                480: { slidesPerView: 2, spaceBetween: 15 },
-                640: { slidesPerView: 3, spaceBetween: 15 },
-                768: { slidesPerView: 3, spaceBetween: 20 },
-                1024: { slidesPerView: 4, spaceBetween: 20 },
-                1280: { slidesPerView: 5, spaceBetween: 20 }
-              }"
-              class="recommendations-slider"
+              :movies="recommendations"
+              :autoplay="true"
+              :autoplay-delay="4000"
+              custom-class="recommendations-slider"
             >
-              <SwiperSlide v-for="movie in recommendations" :key="movie.id">
+              <template #default="{ movie }">
                 <LargeMovieCard :movie="movie" @click="handleMovieClick" />
-              </SwiperSlide>
-            </Swiper>
+              </template>
+            </MovieSlider>
           </section>
         </div>
 
@@ -373,13 +359,13 @@ watch(wishlist, (newWishlist) => {
 }
 
 .stat-card-highlight {
-  background: linear-gradient(135deg, rgba(229, 9, 20, 0.05), rgba(229, 9, 20, 0.1));
-  border-color: rgba(229, 9, 20, 0.3);
+  background: linear-gradient(135deg, rgba(255, 140, 0, 0.05), rgba(255, 140, 0, 0.1));
+  border-color: rgba(255, 140, 0, 0.3);
 }
 
 .stat-card-highlight:hover {
-  background: linear-gradient(135deg, rgba(229, 9, 20, 0.1), rgba(229, 9, 20, 0.15));
-  border-color: var(--primary-color);
+  background: linear-gradient(135deg, rgba(255, 140, 0, 0.1), rgba(255, 140, 0, 0.15));
+  border-color: rgb(255, 140, 0);
 }
 
 .stat-icon {
@@ -391,7 +377,7 @@ watch(wishlist, (newWishlist) => {
   align-items: center;
   justify-content: center;
   font-size: 1.75rem;
-  color: white;
+  color: var(--text-primary);
   flex-shrink: 0;
 }
 

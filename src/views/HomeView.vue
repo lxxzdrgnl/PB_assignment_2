@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { Swiper, SwiperSlide } from 'swiper/vue'
-import { Navigation } from 'swiper/modules'
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
-import MovieCard from '@/components/MovieCard.vue'
+import LargeMovieCard from '@/components/LargeMovieCard.vue'
+import MovieSlider from '@/components/MovieSlider.vue'
 import MovieDetailModal from '@/components/MovieDetailModal.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import type { Movie } from '@/types/movie'
@@ -40,8 +39,6 @@ const selectedMovie = ref<Movie | null>(null)
 const showModal = ref(false)
 const heroMovie = ref<Movie | null>(null)
 let heroInterval: number | null = null
-
-const modules = [Navigation]
 
 const allMovies = computed(() => [
   ...dailyTrendingMovies.value,
@@ -208,350 +205,154 @@ onUnmounted(() => {
             <div class="section-header">
               <h2 class="section-title">일간 트렌드 영화</h2>
             </div>
-            <Swiper
-              :modules="modules"
-              :slides-per-view="2.7"
-              :space-between="15"
-              :navigation="true"
-              :loop="true"
-              :breakpoints="{
-                480: { slidesPerView: 2, spaceBetween: 15 },
-                640: { slidesPerView: 3, spaceBetween: 15 },
-                768: { slidesPerView: 3, spaceBetween: 20 },
-                1024: { slidesPerView: 4, spaceBetween: 20 },
-                1280: { slidesPerView: 5, spaceBetween: 20 }
-              }"
-              class="movies-slider"
-            >
-              <SwiperSlide v-for="movie in dailyTrendingMovies" :key="movie.id">
-                <MovieCard :movie="movie" @click="handleMovieClick" />
-              </SwiperSlide>
-            </Swiper>
+            <MovieSlider :movies="dailyTrendingMovies">
+              <template #default="{ movie }">
+                <LargeMovieCard :movie="movie" @click="handleMovieClick" />
+              </template>
+            </MovieSlider>
           </section>
 
           <section class="section">
             <div class="section-header">
               <h2 class="section-title">인기 TV 프로그램</h2>
             </div>
-            <Swiper
-              :modules="modules"
-              :slides-per-view="2.7"
-              :space-between="15"
-              :navigation="true"
-              :loop="true"
-              :breakpoints="{
-                480: { slidesPerView: 2, spaceBetween: 15 },
-                640: { slidesPerView: 3, spaceBetween: 15 },
-                768: { slidesPerView: 3, spaceBetween: 20 },
-                1024: { slidesPerView: 4, spaceBetween: 20 },
-                1280: { slidesPerView: 5, spaceBetween: 20 }
-              }"
-              class="movies-slider"
-            >
-              <SwiperSlide v-for="movie in popularTvShows" :key="movie.id">
-                <MovieCard :movie="movie" @click="handleMovieClick" />
-              </SwiperSlide>
-            </Swiper>
+            <MovieSlider :movies="popularTvShows">
+              <template #default="{ movie }">
+                <LargeMovieCard :movie="movie" @click="handleMovieClick" />
+              </template>
+            </MovieSlider>
           </section>
 
           <section class="section">
             <div class="section-header">
               <h2 class="section-title">현재 상영작</h2>
             </div>
-            <Swiper
-              :modules="modules"
-              :slides-per-view="2.7"
-              :space-between="15"
-              :navigation="true"
-              :loop="true"
-              :breakpoints="{
-                480: { slidesPerView: 2, spaceBetween: 15 },
-                640: { slidesPerView: 3, spaceBetween: 15 },
-                768: { slidesPerView: 3, spaceBetween: 20 },
-                1024: { slidesPerView: 4, spaceBetween: 20 },
-                1280: { slidesPerView: 5, spaceBetween: 20 }
-              }"
-              class="movies-slider"
-            >
-              <SwiperSlide v-for="movie in nowPlayingMovies" :key="movie.id">
-                <MovieCard :movie="movie" @click="handleMovieClick" />
-              </SwiperSlide>
-            </Swiper>
+            <MovieSlider :movies="nowPlayingMovies">
+              <template #default="{ movie }">
+                <LargeMovieCard :movie="movie" @click="handleMovieClick" />
+              </template>
+            </MovieSlider>
           </section>
 
           <section class="section">
             <div class="section-header">
               <h2 class="section-title">개봉 예정</h2>
             </div>
-            <Swiper
-              :modules="modules"
-              :slides-per-view="2.7"
-              :space-between="15"
-              :navigation="true"
-              :loop="true"
-              :breakpoints="{
-                480: { slidesPerView: 2, spaceBetween: 15 },
-                640: { slidesPerView: 3, spaceBetween: 15 },
-                768: { slidesPerView: 3, spaceBetween: 20 },
-                1024: { slidesPerView: 4, spaceBetween: 20 },
-                1280: { slidesPerView: 5, spaceBetween: 20 }
-              }"
-              class="movies-slider"
-            >
-              <SwiperSlide v-for="movie in upcomingMovies" :key="movie.id">
-                <MovieCard :movie="movie" @click="handleMovieClick" />
-              </SwiperSlide>
-            </Swiper>
+            <MovieSlider :movies="upcomingMovies">
+              <template #default="{ movie }">
+                <LargeMovieCard :movie="movie" @click="handleMovieClick" />
+              </template>
+            </MovieSlider>
           </section>
 
           <section class="section">
             <div class="section-header">
               <h2 class="section-title">높은 평점</h2>
             </div>
-            <Swiper
-              :modules="modules"
-              :slides-per-view="2.7"
-              :space-between="15"
-              :navigation="true"
-              :loop="true"
-              :breakpoints="{
-                480: { slidesPerView: 2, spaceBetween: 15 },
-                640: { slidesPerView: 3, spaceBetween: 15 },
-                768: { slidesPerView: 3, spaceBetween: 20 },
-                1024: { slidesPerView: 4, spaceBetween: 20 },
-                1280: { slidesPerView: 5, spaceBetween: 20 }
-              }"
-              class="movies-slider"
-            >
-              <SwiperSlide v-for="movie in topRatedMovies" :key="movie.id">
-                <MovieCard :movie="movie" @click="handleMovieClick" />
-              </SwiperSlide>
-            </Swiper>
+            <MovieSlider :movies="topRatedMovies">
+              <template #default="{ movie }">
+                <LargeMovieCard :movie="movie" @click="handleMovieClick" />
+              </template>
+            </MovieSlider>
           </section>
 
           <section class="section">
             <div class="section-header">
               <h2 class="section-title">한국 인기 영화</h2>
             </div>
-            <Swiper
-              :modules="modules"
-              :slides-per-view="2.7"
-              :space-between="15"
-              :navigation="true"
-              :loop="true"
-              :breakpoints="{
-                480: { slidesPerView: 2, spaceBetween: 15 },
-                640: { slidesPerView: 3, spaceBetween: 15 },
-                768: { slidesPerView: 3, spaceBetween: 20 },
-                1024: { slidesPerView: 4, spaceBetween: 20 },
-                1280: { slidesPerView: 5, spaceBetween: 20 }
-              }"
-              class="movies-slider"
-            >
-              <SwiperSlide v-for="movie in koreanMovies" :key="movie.id">
-                <MovieCard :movie="movie" @click="handleMovieClick" />
-              </SwiperSlide>
-            </Swiper>
+            <MovieSlider :movies="koreanMovies">
+              <template #default="{ movie }">
+                <LargeMovieCard :movie="movie" @click="handleMovieClick" />
+              </template>
+            </MovieSlider>
           </section>
 
           <section class="section">
             <div class="section-header">
               <h2 class="section-title">한국 인기 TV 프로그램</h2>
             </div>
-            <Swiper
-              :modules="modules"
-              :slides-per-view="2.7"
-              :space-between="15"
-              :navigation="true"
-              :loop="true"
-              :breakpoints="{
-                480: { slidesPerView: 2, spaceBetween: 15 },
-                640: { slidesPerView: 3, spaceBetween: 15 },
-                768: { slidesPerView: 3, spaceBetween: 20 },
-                1024: { slidesPerView: 4, spaceBetween: 20 },
-                1280: { slidesPerView: 5, spaceBetween: 20 }
-              }"
-              class="movies-slider"
-            >
-              <SwiperSlide v-for="movie in koreanTvShows" :key="movie.id">
-                <MovieCard :movie="movie" @click="handleMovieClick" />
-              </SwiperSlide>
-            </Swiper>
+            <MovieSlider :movies="koreanTvShows">
+              <template #default="{ movie }">
+                <LargeMovieCard :movie="movie" @click="handleMovieClick" />
+              </template>
+            </MovieSlider>
           </section>
 
           <section class="section">
             <div class="section-header">
               <h2 class="section-title">추천 액션 영화</h2>
             </div>
-            <Swiper
-              :modules="modules"
-              :slides-per-view="2.7"
-              :space-between="15"
-              :navigation="true"
-              :loop="true"
-              :breakpoints="{
-                480: { slidesPerView: 2, spaceBetween: 15 },
-                640: { slidesPerView: 3, spaceBetween: 15 },
-                768: { slidesPerView: 3, spaceBetween: 20 },
-                1024: { slidesPerView: 4, spaceBetween: 20 },
-                1280: { slidesPerView: 5, spaceBetween: 20 }
-              }"
-              class="movies-slider"
-            >
-              <SwiperSlide v-for="movie in actionMovies" :key="movie.id">
-                <MovieCard :movie="movie" @click="handleMovieClick" />
-              </SwiperSlide>
-            </Swiper>
+            <MovieSlider :movies="actionMovies">
+              <template #default="{ movie }">
+                <LargeMovieCard :movie="movie" @click="handleMovieClick" />
+              </template>
+            </MovieSlider>
           </section>
 
           <section class="section">
             <div class="section-header">
               <h2 class="section-title">추천 코미디 영화</h2>
             </div>
-            <Swiper
-              :modules="modules"
-              :slides-per-view="2.7"
-              :space-between="15"
-              :navigation="true"
-              :loop="true"
-              :breakpoints="{
-                480: { slidesPerView: 2, spaceBetween: 15 },
-                640: { slidesPerView: 3, spaceBetween: 15 },
-                768: { slidesPerView: 3, spaceBetween: 20 },
-                1024: { slidesPerView: 4, spaceBetween: 20 },
-                1280: { slidesPerView: 5, spaceBetween: 20 }
-              }"
-              class="movies-slider"
-            >
-              <SwiperSlide v-for="movie in comedyMovies" :key="movie.id">
-                <MovieCard :movie="movie" @click="handleMovieClick" />
-              </SwiperSlide>
-            </Swiper>
+            <MovieSlider :movies="comedyMovies">
+              <template #default="{ movie }">
+                <LargeMovieCard :movie="movie" @click="handleMovieClick" />
+              </template>
+            </MovieSlider>
           </section>
 
           <section class="section">
             <div class="section-header">
               <h2 class="section-title">추천 로맨스 영화</h2>
             </div>
-            <Swiper
-              :modules="modules"
-              :slides-per-view="2.7"
-              :space-between="15"
-              :navigation="true"
-              :loop="true"
-              :breakpoints="{
-                480: { slidesPerView: 2, spaceBetween: 15 },
-                640: { slidesPerView: 3, spaceBetween: 15 },
-                768: { slidesPerView: 3, spaceBetween: 20 },
-                1024: { slidesPerView: 4, spaceBetween: 20 },
-                1280: { slidesPerView: 5, spaceBetween: 20 }
-              }"
-              class="movies-slider"
-            >
-              <SwiperSlide v-for="movie in romanceMovies" :key="movie.id">
-                <MovieCard :movie="movie" @click="handleMovieClick" />
-              </SwiperSlide>
-            </Swiper>
+            <MovieSlider :movies="romanceMovies">
+              <template #default="{ movie }">
+                <LargeMovieCard :movie="movie" @click="handleMovieClick" />
+              </template>
+            </MovieSlider>
           </section>
 
           <section class="section">
             <div class="section-header">
               <h2 class="section-title">추천 SF 영화</h2>
             </div>
-            <Swiper
-              :modules="modules"
-              :slides-per-view="2.7"
-              :space-between="15"
-              :navigation="true"
-              :loop="true"
-              :breakpoints="{
-                480: { slidesPerView: 2, spaceBetween: 15 },
-                640: { slidesPerView: 3, spaceBetween: 15 },
-                768: { slidesPerView: 3, spaceBetween: 20 },
-                1024: { slidesPerView: 4, spaceBetween: 20 },
-                1280: { slidesPerView: 5, spaceBetween: 20 }
-              }"
-              class="movies-slider"
-            >
-              <SwiperSlide v-for="movie in sciFiMovies" :key="movie.id">
-                <MovieCard :movie="movie" @click="handleMovieClick" />
-              </SwiperSlide>
-            </Swiper>
+            <MovieSlider :movies="sciFiMovies">
+              <template #default="{ movie }">
+                <LargeMovieCard :movie="movie" @click="handleMovieClick" />
+              </template>
+            </MovieSlider>
           </section>
-          
+
           <section class="section">
             <div class="section-header">
               <h2 class="section-title">추천 공포 영화</h2>
             </div>
-            <Swiper
-              :modules="modules"
-              :slides-per-view="2.7"
-              :space-between="15"
-              :navigation="true"
-              :loop="true"
-              :breakpoints="{
-                480: { slidesPerView: 2, spaceBetween: 15 },
-                640: { slidesPerView: 3, spaceBetween: 15 },
-                768: { slidesPerView: 3, spaceBetween: 20 },
-                1024: { slidesPerView: 4, spaceBetween: 20 },
-                1280: { slidesPerView: 5, spaceBetween: 20 }
-              }"
-              class="movies-slider"
-            >
-              <SwiperSlide v-for="movie in horrorMovies" :key="movie.id">
-                <MovieCard :movie="movie" @click="handleMovieClick" />
-              </SwiperSlide>
-            </Swiper>
+            <MovieSlider :movies="horrorMovies">
+              <template #default="{ movie }">
+                <LargeMovieCard :movie="movie" @click="handleMovieClick" />
+              </template>
+            </MovieSlider>
           </section>
 
           <section class="section">
             <div class="section-header">
               <h2 class="section-title">추천 애니메이션</h2>
             </div>
-            <Swiper
-              :modules="modules"
-              :slides-per-view="2.7"
-              :space-between="15"
-              :navigation="true"
-              :loop="true"
-              :breakpoints="{
-                480: { slidesPerView: 2, spaceBetween: 15 },
-                640: { slidesPerView: 3, spaceBetween: 15 },
-                768: { slidesPerView: 3, spaceBetween: 20 },
-                1024: { slidesPerView: 4, spaceBetween: 20 },
-                1280: { slidesPerView: 5, spaceBetween: 20 }
-              }"
-              class="movies-slider"
-            >
-              <SwiperSlide v-for="movie in animationMovies" :key="movie.id">
-                <MovieCard :movie="movie" @click="handleMovieClick" />
-              </SwiperSlide>
-            </Swiper>
+            <MovieSlider :movies="animationMovies">
+              <template #default="{ movie }">
+                <LargeMovieCard :movie="movie" @click="handleMovieClick" />
+              </template>
+            </MovieSlider>
           </section>
 
           <section class="section">
             <div class="section-header">
               <h2 class="section-title">추천 다큐멘터리</h2>
             </div>
-            <Swiper
-              :modules="modules"
-              :slides-per-view="2.7"
-              :space-between="15"
-              :navigation="true"
-              :loop="true"
-              :breakpoints="{
-                480: { slidesPerView: 2, spaceBetween: 15 },
-                640: { slidesPerView: 3, spaceBetween: 15 },
-                768: { slidesPerView: 3, spaceBetween: 20 },
-                1024: { slidesPerView: 4, spaceBetween: 20 },
-                1280: { slidesPerView: 5, spaceBetween: 20 }
-              }"
-              class="movies-slider"
-            >
-              <SwiperSlide v-for="movie in documentaryMovies" :key="movie.id">
-                <MovieCard :movie="movie" @click="handleMovieClick" />
-              </SwiperSlide>
-            </Swiper>
+            <MovieSlider :movies="documentaryMovies">
+              <template #default="{ movie }">
+                <LargeMovieCard :movie="movie" @click="handleMovieClick" />
+              </template>
+            </MovieSlider>
           </section>
         </div>
       </div>
@@ -596,85 +397,21 @@ onUnmounted(() => {
   height: 100%;
   background: linear-gradient(
     180deg,
-    rgba(0, 0, 0, 0.8) 0%,
-    transparent 30%,
-    transparent 60%,
-    var(--bg-dark) 100%
+    rgba(0, 0, 0, 0.3) 0%,
+    transparent 40%,
+    transparent 70%,
+    #141414 100%
   );
 }
 
-.hero-banner-content {
-  position: relative;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 2rem;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding-bottom: 3rem;
-}
-
-.hero-banner-title {
-  font-size: 3rem;
-  font-weight: 900;
-  margin-bottom: 1rem;
-  text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
-  line-height: 1.2;
-}
-
-.hero-banner-meta {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
-}
-
-.hero-banner-rating {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #ffd700;
-  font-weight: 600;
-}
-
-.hero-banner-year {
-  color: var(--text-secondary);
-}
-
-.hero-banner-description {
-  max-width: 600px;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  margin-bottom: 2rem;
-  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8);
-  color: var(--text-primary);
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.hero-banner-actions {
-  display: flex;
-  gap: 1rem;
-}
-
-.hero-banner-actions .btn {
-  padding: 1rem 2.5rem;
-  font-size: 1.1rem;
-}
-
-/* Hero Fade Transition */
-.hero-fade-enter-active,
-.hero-fade-leave-active {
-  transition: opacity 0.5s ease;
-}
-
-.hero-fade-enter-from,
-.hero-fade-leave-to {
-  opacity: 0;
+[data-theme='light'] .hero-banner-overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.3) 0%,
+    transparent 40%,
+    transparent 70%,
+    #f5f5f5 100%
+  );
 }
 
 /* Section Styles */
@@ -683,12 +420,12 @@ onUnmounted(() => {
 }
 
 .section-header {
-  margin-bottom: 0.75rem; /* Restored reasonable space below title */
+  margin-bottom: 0.25rem;
 }
 
 /* Movies Slider */
 .movies-slider {
-  padding: 0.5rem 0 1rem; /* Restored reasonable space above slider */
+  padding: 0.5rem 0 1rem;
 }
 
 /* Specific fix for title-slider spacing */

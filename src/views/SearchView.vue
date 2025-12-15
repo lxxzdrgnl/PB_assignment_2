@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import AppHeader from '@/components/AppHeader.vue'
 import AppFooter from '@/components/AppFooter.vue'
-import MovieCard from '@/components/MovieCard.vue'
+import LargeMovieCard from '@/components/LargeMovieCard.vue'
 import MovieCardSkeleton from '@/components/MovieCardSkeleton.vue'
 import MovieDetailModal from '@/components/MovieDetailModal.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
@@ -425,7 +425,7 @@ onUnmounted(() => {
         </div>
 
         <div v-else class="movie-grid">
-          <MovieCard v-for="movie in movies" :key="movie.id" :movie="movie" @click="handleMovieClick" />
+          <LargeMovieCard v-for="movie in movies" :key="movie.id" :movie="movie" @click="handleMovieClick" />
           <MovieCardSkeleton v-if="isLoadingMore" v-for="i in 6" :key="'skeleton-' + i" />
         </div>
 

@@ -397,11 +397,15 @@ watch(() => props.show, (newVal) => {
 }
 
 .modal-container {
-  background-color: var(--bg-dark);
+  background-color: #141414;
   border-radius: 12px;
   max-width: 900px;
   width: 100%;
   max-height: 90vh;
+}
+
+[data-theme='light'] .modal-container {
+  background-color: #ffffff;
   overflow-y: auto;
   position: relative;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
@@ -458,9 +462,18 @@ watch(() => props.show, (newVal) => {
   bottom: 0;
   background: linear-gradient(
     0deg,
-    var(--bg-dark) 0%,
+    #141414 0%,
     transparent 50%,
     rgba(0, 0, 0, 0.7) 100%
+  );
+}
+
+[data-theme='light'] .modal-header-overlay {
+  background: linear-gradient(
+    0deg,
+    #f5f5f5 0%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.5) 100%
   );
 }
 
@@ -476,6 +489,7 @@ watch(() => props.show, (newVal) => {
   font-weight: 900;
   margin-bottom: 1rem;
   text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.8);
+  color: white;
 }
 
 .modal-meta {

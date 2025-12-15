@@ -1,21 +1,37 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useWishlist } from '@/composables/useWishlist'
+import { useTheme } from '@/composables/useTheme'
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 const { wishlistCount } = useWishlist()
+const { currentTheme, toggleTheme } = useTheme()
+
+const isDark = computed(() => currentTheme.value === 'dark')
 
 const isScrolled = ref(false)
 const showBrowseMenu = ref(false)
 
+// 홈과 인기 페이지 확인
+const isHeroPage = computed(() => {
+  return route.path === '/' || route.path === '/popular'
+})
+
+// 헤더 배경 상태 계산
+const headerScrolled = computed(() => {
+  // 홈과 인기 페이지가 아니면 항상 scrolled 상태
+  if (!isHeroPage.value) return true
+  // 홈과 인기 페이지면 스크롤에 따라 변경
+  return isScrolled.value
+})
+
 const handleScroll = () => {
-  // 히어로 배너 높이(90vh - 100px 정도) 이후에 헤더 배경 활성화
-  const heroHeight = window.innerHeight * 0.9 - 100
-  isScrolled.value = window.scrollY > heroHeight
+  // 스크롤 300px 이후에 헤더 배경 활성화 (더 빠르게 배경 표시)
+  isScrolled.value = window.scrollY > 300
 }
 
 const handleLogout = () => {
@@ -59,7 +75,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <header class="header" :class="{ scrolled: isScrolled }">
+  <header class="header" :class="{ scrolled: headerScrolled }">
     <div class="header-container">
       <div class="header-logo" @click="goHome">MOVIEFLIX</div>
 
@@ -142,6 +158,10 @@ onUnmounted(() => {
           </div>
         </nav>
 
+        <button class="btn-icon theme-toggle" @click="toggleTheme" :title="isDark ? '라이트 모드' : '다크 모드'">
+          <i :class="isDark ? 'fas fa-sun' : 'fas fa-moon'"></i>
+        </button>
+
         <div class="header-user header-user-desktop">
           <span class="header-user-name">{{ authStore.user }}</span>
         </div>
@@ -189,6 +209,12 @@ onUnmounted(() => {
   cursor: pointer;
   color: var(--text-primary);
   padding: 0.5rem 0;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='light'] .header:not(.scrolled) .browse-toggle {
+  color: #ffffff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .browse-toggle .fa-chevron-down {
@@ -208,6 +234,12 @@ onUnmounted(() => {
   backdrop-filter: blur(10px);
   border-radius: 8px;
   min-width: 200px;
+}
+
+[data-theme='light'] .browse-dropdown {
+  background-color: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--border-color);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
   padding: 0.5rem 0;
   z-index: 1000;
@@ -260,6 +292,11 @@ onUnmounted(() => {
   color: var(--text-secondary);
 }
 
+[data-theme='light'] .header:not(.scrolled) .wishlist-count {
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+}
+
 .wishlist-badge {
   display: inline-block;
   background-color: var(--primary-color);
@@ -289,6 +326,30 @@ onUnmounted(() => {
   transform: translateY(-5px);
 }
 
+.theme-toggle {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-speed) var(--transition-ease);
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='light'] .header:not(.scrolled) .theme-toggle {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.5);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.theme-toggle:hover {
+  background-color: var(--bg-light);
+  border-color: var(--primary-color);
+  transform: rotate(20deg);
+}
+
+.theme-toggle i {
+  font-size: 1.1rem;
+}
+
 .header-logout {
   padding: 0.5rem 1.25rem !important;
   font-size: 0.9rem !important;
@@ -296,6 +357,13 @@ onUnmounted(() => {
   letter-spacing: normal !important;
   white-space: nowrap;
   min-width: auto;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='light'] .header:not(.scrolled) .header-logout {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.5);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 @media (max-width: 768px) {
@@ -331,6 +399,15 @@ onUnmounted(() => {
   .header-user-desktop {
     display: none;
   }
+}
+
+.header-user-name {
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='light'] .header:not(.scrolled) .header-user-name {
+  color: #ffffff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 @media (max-width: 480px) {
