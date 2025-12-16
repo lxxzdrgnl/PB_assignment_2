@@ -140,7 +140,7 @@
     "signUpSubtitle": "Sign up for MOVIEFLIX and enjoy various movies",
     "signInSubtitle": "Welcome to MOVIEFLIX",
     "emailLabel": "Email",
-    "emailPlaceholder": "example@email.com",
+    "emailPlaceholder": "example{'@'}email.com",
     "apiKeyLabel": "TMDB API Key",
     "apiKeyPlaceholder": "Enter your TMDB API key",
     "confirmApiKeyLabel": "Confirm TMDB API Key",

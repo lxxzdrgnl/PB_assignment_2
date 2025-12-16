@@ -140,7 +140,7 @@
     "signUpSubtitle": "MOVIEFLIX에 가입하고 다양한 영화를 감상하세요",
     "signInSubtitle": "MOVIEFLIX에 오신 것을 환영합니다",
     "emailLabel": "이메일",
-    "emailPlaceholder": "example@email.com",
+    "emailPlaceholder": "example{'@'}email.com",
     "apiKeyLabel": "TMDB API 키",
     "apiKeyPlaceholder": "TMDB API 키를 입력하세요",
     "confirmApiKeyLabel": "TMDB API 키 확인",

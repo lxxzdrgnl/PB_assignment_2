@@ -1,17 +1,23 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+
+import { ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useTheme } from '@/composables/useTheme'
 import { tryLogin, tryRegister, isValidEmail, setKeepLogin } from '@/utils/auth'
 import { storage, STORAGE_KEYS } from '@/utils/localStorage'
 import type { User } from '@/types/movie'
 import ToastNotification from '@/components/ToastNotification.vue'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const router = useRouter()
 const authStore = useAuthStore()
+const { currentTheme, toggleTheme } = useTheme()
 const toastRef = ref<InstanceType<typeof ToastNotification> | null>(null)
+
+const isDark = computed(() => currentTheme.value === 'dark')
+const showLanguageMenu = ref(false)
 
 const isSignUp = ref(false)
 const email = ref('')
@@ -25,6 +31,16 @@ const confirmApiKeyError = ref('')
 const isLoading = ref(false)
 const isEmailChecked = ref(false)
 const isApiKeyValidated = ref(false)
+
+const changeLanguage = (newLocale: string) => {
+  locale.value = newLocale
+  localStorage.setItem('locale', newLocale)
+  showLanguageMenu.value = false
+}
+
+const toggleLanguageMenu = () => {
+  showLanguageMenu.value = !showLanguageMenu.value
+}
 
 const showToast = (type: 'success' | 'error', title: string, message: string) => {
   toastRef.value?.addToast(type, title, message)
@@ -357,8 +373,41 @@ watch(apiKey, () => {
           {{ isSignUp ? t('signIn.signInButton') : t('signIn.signUpButton') }}
         </span>
       </div>
-    </div>
 
+      <div class="auth-page-controls">
+        <button
+          class="btn-icon theme-toggle"
+          @click="toggleTheme"
+          :title="t('header.toggleTheme')"
+        >
+          <i :class="isDark ? 'fas fa-moon' : 'fas fa-sun'"></i>
+        </button>
+
+        <div class="language-menu-container">
+          <button class="btn-icon" @click.stop="toggleLanguageMenu" :title="t('header.language')">
+            <i class="fas fa-globe"></i>
+          </button>
+          <Transition name="dropdown">
+            <div v-if="showLanguageMenu" class="language-dropdown">
+              <button
+                class="language-dropdown-item"
+                :class="{ active: locale === 'ko' }"
+                @click="changeLanguage('ko')"
+              >
+                한국어
+              </button>
+              <button
+                class="language-dropdown-item"
+                :class="{ active: locale === 'en' }"
+                @click="changeLanguage('en')"
+              >
+                English
+              </button>
+            </div>
+          </Transition>
+        </div>
+      </div>
+    </div>
     <ToastNotification ref="toastRef" />
   </div>
 </template>
@@ -410,5 +459,86 @@ watch(apiKey, () => {
 
 .input-success:focus {
   outline-color: #10b981;
+}
+
+.auth-page-controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  font-size: 1.2rem;
+}
+
+.btn-icon:hover {
+  color: var(--text-primary);
+  background-color: var(--bg-light);
+}
+
+.language-menu-container {
+  position: relative;
+}
+
+.language-dropdown {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  right: 50%;
+  transform: translateX(50%);
+  background-color: var(--bg-light);
+  border-radius: 4px;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+  min-width: 120px;
+  padding: 0.5rem 0;
+  z-index: 1001;
+  border: 1px solid var(--border-color);
+}
+
+.language-dropdown-item {
+  width: 100%;
+  display: block;
+  padding: 0.75rem 1.25rem;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.language-dropdown-item:hover:not(.active) {
+  background-color: var(--primary-color);
+  color: #ffffff;
+}
+
+.language-dropdown-item.active {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.language-dropdown-item.active:hover {
+  background-color: var(--primary-color);
+  color: #ffffff;
+}
+
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+  opacity: 0;
 }
 </style>

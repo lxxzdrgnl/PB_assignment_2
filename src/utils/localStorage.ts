@@ -189,7 +189,7 @@ export class LocalStorageManager {
     } catch (e) {
       console.error('Failed to get from storage:', e)
       this.removeItem(key) // 손상된 데이터 제거
-      throw new StorageError('Failed to parse storage data', 'PARSE_ERROR')
+      return null // 에러를 throw하지 않고 null 반환
     }
   }
 

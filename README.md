@@ -187,61 +187,6 @@ npm run type-check
 4. **keepLogin**: 로그인 유지 여부
 5. **movieWishlist**: 찜한 영화 목록
 
-## 주요 CSS 클래스
-
-### 버튼
-- `.btn`: 기본 버튼
-- `.btn-primary`: 주요 버튼 (빨간색)
-- `.btn-secondary`: 보조 버튼
-- `.btn-ghost`: 투명 버튼
-
-### 입력 필드
-- `.input-field`: 입력 필드
-- `.input-label`: 라벨
-- `.input-error`: 에러 상태
-
-### 레이아웃
-- `.container`: 컨테이너
-- `.page-container`: 페이지 컨테이너
-- `.movie-grid`: 영화 그리드
-- `.section`: 섹션
-
-### 컴포넌트
-- `.movie-card`: 영화 카드
-- `.header`: 헤더
-- `.loading-spinner`: 로딩 스피너
-- `.toast`: Toast 알림
-
-## 반응형 브레이크포인트
-
-- **Desktop**: 1025px 이상
-- **Tablet**: 769px ~ 1024px
-- **Mobile**: 768px 이하
-- **Small Mobile**: 480px 이하
-
-## 구현 특징
-
-### Vue.js 특징
-- Composition API 사용
-- TypeScript 타입 안정성
-- Pinia를 통한 전역 상태 관리
-- Custom Composable (useWishlist)
-- Dynamic Component Rendering
-- Conditional & Iterative Rendering
-
-### CSS 특징
-- CSS Variables로 테마 관리
-- Flexbox & Grid 레이아웃
-- CSS Transitions & Animations
-- 반응형 미디어 쿼리
-- BEM 방법론 참고
-
-### 성능 최적화
-- 이미지 Lazy Loading
-- 무한 스크롤 최적화
-- Local Storage 캐싱
-- Debounce/Throttle (필요 시)
-
 ## Git 커밋 메시지 규칙
 
 이 프로젝트는 다음과 같은 커밋 메시지 컨벤션을 따릅니다:
@@ -339,11 +284,6 @@ git branch -d feature/movie-slider
 # 5. 배포 준비 완료 시 (dev → main) - Pull Request 사용
 # GitHub에서 PR 생성 (dev → main)
 # 코드 리뷰 후 병합
-# 병합 후 태그 생성
-git checkout main
-git pull origin main
-git tag -a v1.0.0 -m "Release version 1.0.0"
-git push origin main --tags
 ```
 
 ### 브랜치 네이밍 규칙
@@ -369,3 +309,59 @@ git push origin main --tags
   - GitHub에서 PR 생성
   - 코드 리뷰 필수
   - 릴리스 단위를 명확히 구분
+
+
+## 주요 CSS 클래스
+
+### 버튼
+- `.btn`: 기본 버튼
+- `.btn-primary`: 주요 버튼 (빨간색)
+- `.btn-secondary`: 보조 버튼
+- `.btn-ghost`: 투명 버튼
+
+### 입력 필드
+- `.input-field`: 입력 필드
+- `.input-label`: 라벨
+- `.input-error`: 에러 상태
+
+### 레이아웃
+- `.container`: 컨테이너
+- `.page-container`: 페이지 컨테이너
+- `.movie-grid`: 영화 그리드
+- `.section`: 섹션
+
+### 컴포넌트
+- `.movie-card`: 영화 카드
+- `.header`: 헤더
+- `.loading-spinner`: 로딩 스피너
+- `.toast`: Toast 알림
+
+## 반응형 브레이크포인트
+
+- **Desktop**: 1025px 이상
+- **Tablet**: 769px ~ 1024px
+- **Mobile**: 768px 이하
+- **Small Mobile**: 480px 이하
+
+## 구현 특징
+
+### Vue.js 특징
+- Composition API 사용
+- TypeScript 타입 안정성
+- Pinia를 통한 전역 상태 관리
+- Custom Composable (useWishlist)
+- Dynamic Component Rendering
+- Conditional & Iterative Rendering
+
+### CSS 특징
+- CSS Variables로 테마 관리
+- Flexbox & Grid 레이아웃
+- CSS Transitions & Animations
+- 반응형 미디어 쿼리
+- BEM 방법론 참고
+
+### 성능 최적화
+- 이미지 Lazy Loading
+- 무한 스크롤 최적화
+- Local Storage 캐싱
+- Debounce/Throttle (필요 시)
