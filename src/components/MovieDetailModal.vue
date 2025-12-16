@@ -402,10 +402,6 @@ watch(() => props.show, (newVal) => {
   max-width: 900px;
   width: 100%;
   max-height: 90vh;
-}
-
-[data-theme='light'] .modal-container {
-  background-color: #ffffff;
   overflow-y: auto;
   position: relative;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
@@ -413,6 +409,10 @@ watch(() => props.show, (newVal) => {
   /* 스크롤바 숨기기 */
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
+}
+
+[data-theme='light'] .modal-container {
+  background-color: #ffffff;
 }
 
 .modal-container::-webkit-scrollbar {

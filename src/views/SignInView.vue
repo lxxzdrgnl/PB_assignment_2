@@ -3,6 +3,8 @@ import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { tryLogin, tryRegister, isValidEmail, setKeepLogin } from '@/utils/auth'
+import { storage, STORAGE_KEYS } from '@/utils/localStorage'
+import type { User } from '@/types/movie'
 import ToastNotification from '@/components/ToastNotification.vue'
 
 const router = useRouter()
@@ -74,8 +76,10 @@ const checkEmailDuplicate = () => {
   }
 
   isLoading.value = true
-  const users = JSON.parse(localStorage.getItem('movieflix_users') || '[]')
-  const userExists = users.some((user: any) => user.id === email.value)
+
+  // storage 유틸리티를 사용하여 사용자 목록 가져오기 (암호화된 데이터 복호화)
+  const users: User[] = storage.getItem<User[]>(STORAGE_KEYS.AUTH_USERS) || []
+  const userExists = users.some((user) => user.id === email.value)
 
   setTimeout(() => {
     if (userExists) {
