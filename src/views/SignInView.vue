@@ -251,105 +251,103 @@ watch(apiKey, () => {
         </p>
       </div>
 
-      <Transition name="fade" mode="out-in">
-        <form
-          class="auth-form"
-          @submit.prevent="handleSubmit"
-          :key="isSignUp ? 'signup' : 'signin'"
-        >
-          <div class="input-group">
-            <label class="input-label" for="email">{{ t('signIn.emailLabel') }}</label>
-            <div class="input-with-button">
-              <input
-                id="email"
-                type="email"
-                class="input-field"
-                :class="{ 'input-error': emailError, 'input-success': isSignUp && isEmailChecked }"
-                v-model="email"
-                @blur="validateEmail"
-                :placeholder="t('signIn.emailPlaceholder')"
-                required
-              />
-              <button
-                v-if="isSignUp"
-                type="button"
-                class="btn-check"
-                :class="{ 'btn-checked': isEmailChecked }"
-                @click="checkEmailDuplicate"
-                :disabled="isLoading"
-              >
-                {{
-                  isEmailChecked ? t('signIn.checkDuplicateSuccess') : t('signIn.checkDuplicate')
-                }}
-              </button>
-            </div>
-            <p v-if="emailError" class="error-message">{{ emailError }}</p>
-          </div>
-
-          <div class="input-group">
-            <label class="input-label" for="apiKey">{{ t('signIn.apiKeyLabel') }}</label>
-            <div class="input-with-button">
-              <input
-                id="apiKey"
-                type="text"
-                class="input-field"
-                :class="{
-                  'input-error': apiKeyError,
-                  'input-success': isSignUp && isApiKeyValidated
-                }"
-                v-model="apiKey"
-                @blur="validateApiKey"
-                :placeholder="t('signIn.apiKeyPlaceholder')"
-                required
-              />
-              <button
-                v-if="isSignUp"
-                type="button"
-                class="btn-check"
-                :class="{ 'btn-checked': isApiKeyValidated }"
-                @click="validateApiKeyOnServer"
-                :disabled="isLoading"
-              >
-                {{ isApiKeyValidated ? t('signIn.validateApiSuccess') : t('signIn.validateApi') }}
-              </button>
-            </div>
-            <p v-if="apiKeyError" class="error-message">{{ apiKeyError }}</p>
-          </div>
-
-          <div v-if="isSignUp" class="input-group">
-            <label class="input-label" for="confirmApiKey">{{
-              t('signIn.confirmApiKeyLabel')
-            }}</label>
+      <form
+        class="auth-form"
+        @submit.prevent="handleSubmit"
+        :key="isSignUp ? 'signup' : 'signin'"
+      >
+        <div class="input-group">
+          <label class="input-label" for="email">{{ t('signIn.emailLabel') }}</label>
+          <div class="input-with-button">
             <input
-              id="confirmApiKey"
-              type="text"
+              id="email"
+              type="email"
               class="input-field"
-              :class="{ 'input-error': confirmApiKeyError }"
-              v-model="confirmApiKey"
-              @blur="validateConfirmApiKey"
-              :placeholder="t('signIn.confirmApiKeyPlaceholder')"
+              :class="{ 'input-error': emailError, 'input-success': isSignUp && isEmailChecked }"
+              v-model="email"
+              @blur="validateEmail"
+              :placeholder="t('signIn.emailPlaceholder')"
               required
             />
-            <p v-if="confirmApiKeyError" class="error-message">{{ confirmApiKeyError }}</p>
+            <button
+              v-if="isSignUp"
+              type="button"
+              class="btn-check"
+              :class="{ 'btn-checked': isEmailChecked }"
+              @click="checkEmailDuplicate"
+              :disabled="isLoading"
+            >
+              {{
+                isEmailChecked ? t('signIn.checkDuplicateSuccess') : t('signIn.checkDuplicate')
+              }}
+            </button>
           </div>
+          <p v-if="emailError" class="error-message">{{ emailError }}</p>
+        </div>
 
-          <div v-if="!isSignUp" class="checkbox-group">
-            <input id="rememberMe" type="checkbox" class="checkbox-input" v-model="rememberMe" />
-            <label for="rememberMe" class="checkbox-label">{{ t('signIn.rememberMe') }}</label>
+        <div class="input-group">
+          <label class="input-label" for="apiKey">{{ t('signIn.apiKeyLabel') }}</label>
+          <div class="input-with-button">
+            <input
+              id="apiKey"
+              type="text"
+              class="input-field"
+              :class="{
+                'input-error': apiKeyError,
+                'input-success': isSignUp && isApiKeyValidated
+              }"
+              v-model="apiKey"
+              @blur="validateApiKey"
+              :placeholder="t('signIn.apiKeyPlaceholder')"
+              required
+            />
+            <button
+              v-if="isSignUp"
+              type="button"
+              class="btn-check"
+              :class="{ 'btn-checked': isApiKeyValidated }"
+              @click="validateApiKeyOnServer"
+              :disabled="isLoading"
+            >
+              {{ isApiKeyValidated ? t('signIn.validateApiSuccess') : t('signIn.validateApi') }}
+            </button>
           </div>
+          <p v-if="apiKeyError" class="error-message">{{ apiKeyError }}</p>
+        </div>
 
-          <div v-if="isSignUp" class="checkbox-group">
-            <input id="agreeTerms" type="checkbox" class="checkbox-input" v-model="agreeTerms" />
-            <label for="agreeTerms" class="checkbox-label">
-              {{ t('signIn.agreeTerms') }}
-            </label>
-          </div>
+        <div v-if="isSignUp" class="input-group">
+          <label class="input-label" for="confirmApiKey">{{
+            t('signIn.confirmApiKeyLabel')
+          }}</label>
+          <input
+            id="confirmApiKey"
+            type="text"
+            class="input-field"
+            :class="{ 'input-error': confirmApiKeyError }"
+            v-model="confirmApiKey"
+            @blur="validateConfirmApiKey"
+            :placeholder="t('signIn.confirmApiKeyPlaceholder')"
+            required
+          />
+          <p v-if="confirmApiKeyError" class="error-message">{{ confirmApiKeyError }}</p>
+        </div>
 
-          <button type="submit" class="btn btn-primary w-full mt-3">
-            {{ isSignUp ? t('signIn.signUpButton') : t('signIn.signInButton') }}
-          </button>
-        </form>
-      </Transition>
+        <div v-if="!isSignUp" class="checkbox-group">
+          <input id="rememberMe" type="checkbox" class="checkbox-input" v-model="rememberMe" />
+          <label for="rememberMe" class="checkbox-label">{{ t('signIn.rememberMe') }}</label>
+        </div>
+
+        <div v-if="isSignUp" class="checkbox-group">
+          <input id="agreeTerms" type="checkbox" class="checkbox-input" v-model="agreeTerms" />
+          <label for="agreeTerms" class="checkbox-label">
+            {{ t('signIn.agreeTerms') }}
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full mt-3">
+          {{ isSignUp ? t('signIn.signUpButton') : t('signIn.signInButton') }}
+        </button>
+      </form>
 
       <div class="auth-toggle">
         {{ isSignUp ? t('signIn.toggleToSignIn') : t('signIn.toggleToSignUp') }}
