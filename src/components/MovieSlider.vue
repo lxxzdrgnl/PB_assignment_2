@@ -70,6 +70,7 @@ const paginationConfig = computed(() => {
 <style scoped>
 .movies-slider {
   padding: 1rem 0 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .movies-slider :deep(.swiper) {
@@ -78,9 +79,15 @@ const paginationConfig = computed(() => {
 
 .movies-slider :deep(.swiper-wrapper) {
   padding: 0;
+  padding-bottom: 1rem;
 }
 
 .movies-slider :deep(.swiper-slide) {
   padding: 0;
+}
+
+.movies-slider :deep(.swiper-pagination) {
+  position: absolute;
+  bottom: 0rem !important;
 }
 </style>

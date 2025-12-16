@@ -382,7 +382,11 @@ onUnmounted(() => {
 
 /* Section Header Override */
 .section .section-header {
-  margin-bottom: 0rem;
+  margin-bottom: 1rem;
+}
+
+.section .section-title {
+  margin-bottom: 0;
 }
 
 /* All Movie Sliders */
@@ -393,6 +397,15 @@ onUnmounted(() => {
 
 :deep(.movies-slider .swiper) {
   padding: 0.25rem 0 0.5rem !important;
+}
+
+.top-movies-slider :deep(.swiper-wrapper) {
+  padding-bottom: 1rem !important;
+}
+
+.top-movies-slider :deep(.swiper-pagination) {
+  position: absolute;
+  bottom: 0rem !important;
 }
 
 .top-movie-card {
@@ -434,35 +447,53 @@ onUnmounted(() => {
 /* View Mode Toggle */
 .view-mode-toggle {
   display: flex;
-  gap: 0.5rem;
-  background-color: var(--bg-light);
-  padding: 0.25rem;
-  border-radius: 8px;
+  gap: 0;
+  background-color: transparent;
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 .view-mode-btn {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
   background-color: transparent;
   border: none;
   color: var(--text-secondary);
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  border-radius: 8px;
+  border-radius: 0;
   cursor: pointer;
   transition: all 0.3s ease;
+  position: relative;
+}
+
+.view-mode-btn:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 60%;
+  background-color: var(--border-color);
 }
 
 .view-mode-btn:hover {
-  background-color: var(--border-color);
+  background-color: var(--bg-light);
   color: var(--text-primary);
 }
 
 .view-mode-btn.active {
   background-color: var(--primary-color);
   color: #ffffff;
+}
+
+.view-mode-btn.active::after {
+  display: none;
 }
 
 .view-mode-btn i {
@@ -488,7 +519,7 @@ onUnmounted(() => {
 
 @media (max-width: 768px) {
   .view-mode-btn {
-    padding: 0.6rem 1rem;
+    padding: 0.4rem 0.8rem;
     font-size: 0.85rem;
   }
 
@@ -512,7 +543,7 @@ onUnmounted(() => {
 @media (max-width: 480px) {
   .view-mode-btn {
     font-size: 0.8rem;
-    padding: 0.5rem 0.6rem;
+    padding: 0.4rem 0.6rem;
   }
 
   .view-mode-btn i {

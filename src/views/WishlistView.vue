@@ -337,8 +337,8 @@ watch(wishlist, (newWishlist) => {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.5rem;
-  margin: 2rem 0;
-  padding: 2rem 0;
+  margin: 1rem 0;
+  padding: 0.5rem 0;
 }
 
 .stat-card {
@@ -377,7 +377,7 @@ watch(wishlist, (newWishlist) => {
   align-items: center;
   justify-content: center;
   font-size: 1.75rem;
-  color: var(--text-primary);
+  color: #ffffff;
   flex-shrink: 0;
 }
 
@@ -484,8 +484,8 @@ watch(wishlist, (newWishlist) => {
 }
 
 .recommendations-section {
-  margin-top: 4rem;
-  padding-top: 3rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
   border-top: 1px solid var(--border-color);
 }
 
@@ -508,8 +508,8 @@ watch(wishlist, (newWishlist) => {
   .stats-dashboard {
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
-    margin: 1.5rem 0;
-    padding: 1.5rem 0;
+    margin: 1rem 0;
+    padding: 0.5rem 0;
   }
 
   .stat-card {
@@ -566,8 +566,8 @@ watch(wishlist, (newWishlist) => {
   }
 
   .recommendations-section {
-    margin-top: 3rem;
-    padding-top: 2rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
   }
 
   .recommendations-section .section-title {
